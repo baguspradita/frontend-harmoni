@@ -39,7 +39,7 @@ export default function Packages() {
         className="bg-white py-3xl"
       >
         <div className="max-w-7xl mx-auto px-lg text-center">
-          <h1 className="font-poppins font-bold text-4xl sm:text-5xl md:text-6xl mb-xl text-dark">
+          <h1 className="font-poppins font-bold text-4xl sm:text-5xl md:text-6xl mb-xl text-primary">
             Paket Wisata Lengkap
           </h1>
           <p className="font-inter text-lg text-gray-600 max-w-2xl mx-auto">

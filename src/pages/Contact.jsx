@@ -70,7 +70,7 @@ export default function Contact() {
             Konsultasi & Pemesanan
           </h1>
           <p className="font-inter text-lg text-gray-600 max-w-2xl mx-auto">
-            Hubungi tim kami untuk informasi lebih detail dan melakukan pemesanan
+            Hubungi tim kami untuk informasi lebih detail tanpa dipungut biaya. Kami siap membantu Anda merencanakan perjalanan impian dengan layanan konsultasi gratis.
           </p>
         </div>
       </motion.section>
