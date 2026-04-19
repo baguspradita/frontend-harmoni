@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { HiMenu, HiX } from "react-icons/hi";
+import logoImg from "../assets/logo.jpeg";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,7 +12,6 @@ export default function Navbar() {
     { name: "Beranda", path: "/" },
     { name: "Paket Wisata", path: "/packages" },
     { name: "Galeri", path: "/gallery" },
-    { name: "Blog", path: "/blog" },
     { name: "Kontak", path: "/contact" },
   ];
 
@@ -27,9 +27,11 @@ export default function Navbar() {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-md">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center text-white font-bold">
-              ✈
-            </div>
+            <img 
+              src={logoImg} 
+              alt="Harmoni Travel Logo" 
+              className="h-10 w-auto object-contain rounded-lg shadow-soft hover:shadow-medium transition-all"
+            />
             <span className="font-poppins font-bold text-lg text-primary hidden sm:inline">
               Harmoni Travel
             </span>
@@ -60,10 +62,10 @@ export default function Navbar() {
 
           {/* CTA Button */}
           <a
-            href="https://wa.me/628123456789?text=Saya%20ingin%20berkonsultasi%20tentang%20paket%20wisata"
+            href="https://wa.me/6288227250909?text=Saya%20ingin%20berkonsultasi%20tentang%20paket%20wisata"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:inline-block px-lg py-md font-inter font-semibold text-sm text-white bg-accent hover:bg-opacity-90 rounded-lg transition-all duration-300 hover:shadow-medium"
+            className="hidden sm:inline-block px-lg py-md font-inter font-semibold text-sm text-white bg-primary hover:bg-opacity-90 rounded-lg transition-all duration-300 hover:shadow-medium"
           >
             Konsultasi
           </a>
@@ -101,10 +103,10 @@ export default function Navbar() {
                 </Link>
               ))}
               <a
-                href="https://wa.me/628123456789?text=Saya%20ingin%20berkonsultasi%20tentang%20paket%20wisata"
+                href="https://wa.me/6288227250909?text=Saya%20ingin%20berkonsultasi%20tentang%20paket%20wisata"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full px-lg py-md font-inter font-semibold text-sm text-white bg-accent hover:bg-opacity-90 rounded-lg text-center transition-all"
+                className="w-full px-lg py-md font-inter font-semibold text-sm text-white bg-primary hover:bg-opacity-90 rounded-lg text-center transition-all"
               >
                 Konsultasi via WhatsApp
               </a>

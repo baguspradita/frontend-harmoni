@@ -2,12 +2,12 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   HiPhone,
-  HiEnvelope,
-  HiLocationMarker,
-  HiFacebook,
-  HiInstagram,
-  HiTwitter,
-} from "react-icons/hi";
+  HiOutlineEnvelope,
+  HiOutlineMapPin,
+  HiOutlineStar,
+} from "react-icons/hi2";
+import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
+import logoImg from "../assets/logo.jpeg";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -43,9 +43,11 @@ export default function Footer() {
           {/* Brand */}
           <motion.div variants={itemVariants}>
             <div className="flex items-center gap-md mb-xl">
-              <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center text-primary font-bold">
-                ✈
-              </div>
+              <img 
+                src={logoImg} 
+                alt="Harmoni Travel Logo" 
+                className="h-10 w-auto object-contain"
+              />
               <h3 className="font-poppins font-bold text-xl">Harmoni Travel</h3>
             </div>
             <p className="font-inter text-sm text-gray-300">
@@ -100,11 +102,11 @@ export default function Footer() {
                 <span>+62 812 3456 789</span>
               </li>
               <li className="flex items-start gap-md">
-                <HiEnvelope className="mt-1 flex-shrink-0" />
+                <HiOutlineEnvelope className="mt-1 flex-shrink-0" />
                 <span>info@harmontravel.com</span>
               </li>
               <li className="flex items-start gap-md">
-                <HiLocationMarker className="mt-1 flex-shrink-0" />
+                <HiOutlineMapPin className="mt-1 flex-shrink-0" />
                 <span>Jakarta, Indonesia</span>
               </li>
             </ul>
@@ -120,19 +122,19 @@ export default function Footer() {
                 href="#"
                 className="w-10 h-10 rounded-lg bg-secondary hover:bg-opacity-80 flex items-center justify-center transition-all duration-300 hover:scale-110"
               >
-                <HiFacebook />
+                <FaFacebook />
               </a>
               <a
                 href="#"
                 className="w-10 h-10 rounded-lg bg-secondary hover:bg-opacity-80 flex items-center justify-center transition-all duration-300 hover:scale-110"
               >
-                <HiInstagram />
+                <FaInstagram />
               </a>
               <a
                 href="#"
                 className="w-10 h-10 rounded-lg bg-secondary hover:bg-opacity-80 flex items-center justify-center transition-all duration-300 hover:scale-110"
               >
-                <HiTwitter />
+                <FaTwitter />
               </a>
             </div>
           </motion.div>

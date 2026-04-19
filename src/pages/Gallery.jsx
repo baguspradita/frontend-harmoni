@@ -49,16 +49,29 @@ export default function Gallery() {
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="bg-gradient-to-r from-primary to-blue-900 text-white py-3xl"
+        style={{
+          backgroundImage: "url('/logo.jpeg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          minHeight: '400px',
+        }}
+        className="py-8xl"
+      >
+      </motion.section>
+
+      {/* Text Section */}
+      <motion.section
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="bg-white py-3xl"
       >
         <div className="max-w-7xl mx-auto px-lg text-center">
-          <p className="font-inter text-lg font-semibold text-secondary mb-lg">
-            Inspirasi Wisata
-          </p>
-          <h1 className="font-poppins font-bold text-4xl sm:text-5xl md:text-6xl mb-xl">
+          <h1 className="font-poppins font-bold text-4xl sm:text-5xl md:text-6xl mb-xl text-dark">
             Galeri Destinasi
           </h1>
-          <p className="font-inter text-lg text-gray-200 max-w-2xl mx-auto">
+          <p className="font-inter text-lg text-gray-600 max-w-2xl mx-auto">
             Lihat keindahan destinasi wisata Indonesia melalui koleksi foto kami
           </p>
         </div>

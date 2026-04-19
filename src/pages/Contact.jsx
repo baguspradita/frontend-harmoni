@@ -1,22 +1,22 @@
 import { motion } from "framer-motion";
-import { HiPhone, HiMail, HiLocationMarker, HiCheck } from "react-icons/hi";
+import { HiPhone, HiOutlineEnvelope, HiOutlineMapPin, HiCheck } from "react-icons/hi2";
 
 export default function Contact() {
   const contactInfo = [
     {
       icon: HiPhone,
       label: "Telepon",
-      value: "+62 812 3456 789",
-      href: "tel:+628123456789",
+      value: "+62 882 2725 0909",
+      href: "tel:+6288227250909",
     },
     {
-      icon: HiMail,
+      icon: HiOutlineEnvelope,
       label: "Email",
       value: "info@harmontravel.com",
       href: "mailto:info@harmontravel.com",
     },
     {
-      icon: HiLocationMarker,
+      icon: HiOutlineMapPin,
       label: "Alamat",
       value: "Jakarta, Indonesia",
       href: "#",
@@ -47,16 +47,29 @@ export default function Contact() {
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="bg-gradient-to-r from-primary to-blue-900 text-white py-3xl"
+        style={{
+          backgroundImage: "url('/logo.jpeg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          minHeight: '400px',
+        }}
+        className="py-8xl"
+      >
+      </motion.section>
+
+      {/* Text Section */}
+      <motion.section
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="bg-white py-3xl"
       >
         <div className="max-w-7xl mx-auto px-lg text-center">
-          <p className="font-inter text-lg font-semibold text-secondary mb-lg">
-            Hubungi Kami
-          </p>
-          <h1 className="font-poppins font-bold text-4xl sm:text-5xl md:text-6xl mb-xl">
+          <h1 className="font-poppins font-bold text-4xl sm:text-5xl md:text-6xl mb-xl text-dark">
             Konsultasi & Pemesanan
           </h1>
-          <p className="font-inter text-lg text-gray-200 max-w-2xl mx-auto">
+          <p className="font-inter text-lg text-gray-600 max-w-2xl mx-auto">
             Hubungi tim kami untuk informasi lebih detail dan melakukan pemesanan
           </p>
         </div>
@@ -237,7 +250,7 @@ export default function Contact() {
               </div>
 
               <a
-                href="https://wa.me/628123456789?text=Halo%20Harmoni%20Travel%2C%20saya%20ingin%20berkonsultasi%20tentang%20paket%20wisata"
+                href="https://wa.me/6288227250909?text=Halo%20Harmoni%20Travel%2C%20saya%20ingin%20berkonsultasi%20tentang%20paket%20wisata"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full px-lg py-lg font-inter font-bold text-white text-center bg-accent rounded-lg hover:bg-opacity-90 transition-all duration-300 shadow-medium"

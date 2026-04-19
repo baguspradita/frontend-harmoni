@@ -66,7 +66,7 @@ export default function PackageCard({ package: pkg, index }) {
             </p>
           </div>
           <a
-            href={`https://wa.me/628123456789?text=Saya%20ingin%20booking%20paket%20${encodeURIComponent(
+            href={`https://wa.me/6288227250909?text=Saya%20ingin%20booking%20paket%20${encodeURIComponent(
               pkg.title
             )}`}
             target="_blank"

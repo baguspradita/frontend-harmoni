@@ -3,8 +3,7 @@ import { useState } from "react";
 import HeroSection from "../components/HeroSection";
 import SectionTitle from "../components/SectionTitle";
 import PackageCard from "../components/PackageCard";
-import TestimonialCard from "../components/TestimonialCard";
-import BlogCard from "../components/BlogCard";
+import TestimonialCarousel from "../components/TestimonialCarousel";
 import { packages } from "../data/packages";
 import { testimonials } from "../data/testimonials";
 import { blogs } from "../data/blog";
@@ -17,8 +16,6 @@ import {
 
 export default function Home() {
   const featuredPackages = packages.slice(0, 3);
-  const featuredTestimonials = testimonials.slice(0, 3);
-  const featuredBlogs = blogs.slice(0, 3);
 
   const features = [
     {
@@ -125,19 +122,12 @@ export default function Home() {
       <section className="py-4xl bg-neutral">
         <div className="max-w-7xl mx-auto px-lg">
           <SectionTitle
-            subtitle="Kepuasan Pelanggan"
             title="Testimoni dari Pengunjung Kami"
             description="Ribuan wisatawan telah merasakan pengalaman luar biasa bersama kami"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2xl mt-3xl">
-            {featuredTestimonials.map((testimonial, index) => (
-              <TestimonialCard
-                key={testimonial.id}
-                testimonial={testimonial}
-                index={index}
-              />
-            ))}
+          <div className="mt-3xl">
+            <TestimonialCarousel testimonials={testimonials} />
           </div>
         </div>
       </section>
@@ -148,7 +138,12 @@ export default function Home() {
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
-        className="py-4xl bg-gradient-to-r from-primary to-blue-900 text-white relative overflow-hidden"
+        className="py-4xl text-white relative overflow-hidden"
+        style={{
+          backgroundImage: "url('/background-tour.jpg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
       >
         <div className="absolute inset-0 opacity-10">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-secondary rounded-full"></div>
@@ -162,7 +157,7 @@ export default function Home() {
           viewport={{ once: true }}
           className="relative z-10 max-w-3xl mx-auto text-center px-lg"
         >
-          <h2 className="font-poppins font-bold text-3xl sm:text-4xl md:text-5xl mb-lg">
+          <h2 className="font-poppins font-bold text-3xl sm:text-4xl md:text-5xl mb-lg text-secondary">
             Siap untuk Petualangan?
           </h2>
           <p className="font-inter text-lg text-gray-200 mb-2xl">
@@ -171,7 +166,7 @@ export default function Home() {
           </p>
 
           <a
-            href="https://wa.me/628123456789?text=Saya%20ingin%20berkonsultasi%20tentang%20paket%20wisata"
+            href="https://wa.me/6288227250909?text=Saya%20ingin%20berkonsultasi%20tentang%20paket%20wisata"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block px-2xl py-lg font-inter font-bold text-lg text-primary bg-white rounded-lg hover:bg-gray-100 transition-all duration-300 shadow-medium hover:shadow-lg"
@@ -181,37 +176,7 @@ export default function Home() {
         </motion.div>
       </motion.section>
 
-      {/* Featured Blog */}
-      <section className="py-4xl bg-white">
-        <div className="max-w-7xl mx-auto px-lg">
-          <SectionTitle
-            subtitle="Artikel & Tips"
-            title="Blog Wisata Terbaru"
-            description="Pelajari tips dan trik menarik untuk membuat perjalanan Anda lebih berkesan"
-          />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2xl mt-3xl">
-            {featuredBlogs.map((blog, index) => (
-              <BlogCard key={blog.id} blog={blog} index={index} />
-            ))}
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            viewport={{ once: true }}
-            className="text-center mt-3xl"
-          >
-            <a
-              href="/blog"
-              className="inline-block px-2xl py-lg font-inter font-bold text-primary bg-neutral rounded-lg hover:bg-opacity-70 transition-all duration-300"
-            >
-              Baca Semua Artikel →
-            </a>
-          </motion.div>
-        </div>
-      </section>
     </div>
   );
 }
