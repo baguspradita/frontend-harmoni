@@ -2,7 +2,7 @@ export const packages = [
   {
     id: 1,
     title: "Yogyakarta Heritage",
-    category: "Budaya",
+    category: "Yogyakarta",
     image: "https://images.unsplash.com/photo-1537225228614-b19960eeb4e0?w=600&q=80",
     price: "1.500.000",
     duration: "4 Hari",
@@ -13,7 +13,7 @@ export const packages = [
   {
     id: 2,
     title: "Raja Ampat Adventure",
-    category: "Adventure",
+    category: "Nusa Tenggara Barat",
     image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&q=80",
     price: "3.200.000",
     duration: "5 Hari",
@@ -24,7 +24,7 @@ export const packages = [
   {
     id: 3,
     title: "Lombok Beach Paradise",
-    category: "Pantai",
+    category: "Nusa Tenggara Barat",
     image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
     price: "2.000.000",
     duration: "3 Hari",
@@ -35,7 +35,7 @@ export const packages = [
   {
     id: 4,
     title: "Bromo Sunrise Trek",
-    category: "Adventure",
+    category: "Jawa Timur",
     image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&q=80",
     price: "1.200.000",
     duration: "2 Hari",
@@ -46,7 +46,7 @@ export const packages = [
   {
     id: 5,
     title: "Komodo Island Expedition",
-    category: "Adventure",
+    category: "Nusa Tenggara Barat",
     image: "https://images.unsplash.com/photo-1552733407-5d5c46b3da98?w=600&q=80",
     price: "2.800.000",
     duration: "4 Hari",
@@ -57,11 +57,11 @@ export const packages = [
   {
     id: 6,
     title: "Ubud Cultural Experience",
-    category: "Budaya",
+    category: "Jawa Tengah",
     image: "https://images.unsplash.com/photo-1501572101042-dac3214191ef?w=600&q=80",
     price: "1.800.000",
     duration: "3 Hari",
-    description: "Immersive experience di jantung budaya Bali. Belajar membuat batik, kunjungi sawah terasering, dan rasakan kehidupan lokal yang autentik.",
+    description: "Immersive experience di jantung budaya Jawa. Belajar membuat batik, kunjungi sawah terasering, dan rasakan kehidupan lokal yang autentik.",
     highlights: ["Sawah Terasering", "Batik Workshop", "Temple tour", "Local villages"],
     included: ["Boutique hotel", "All activities", "Meals with local", "Guide"]
   },
@@ -69,7 +69,9 @@ export const packages = [
 
 export const packageCategories = [
   { id: 1, name: "Semua", slug: "semua" },
-  { id: 2, name: "Pantai", slug: "pantai" },
-  { id: 3, name: "Adventure", slug: "adventure" },
-  { id: 4, name: "Budaya", slug: "budaya" },
+  { id: 2, name: "Yogyakarta", slug: "yogyakarta" },
+  { id: 3, name: "Jawa Tengah", slug: "jawa-tengah" },
+  { id: 4, name: "Jawa Barat", slug: "jawa-barat" },
+  { id: 5, name: "Jawa Timur", slug: "jawa-timur" },
+  { id: 6, name: "Nusa Tenggara Barat", slug: "nusa-tenggara-barat" },
 ];

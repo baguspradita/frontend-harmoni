@@ -53,7 +53,6 @@ export default function Home() {
       <section className="py-4xl bg-neutral">
         <div className="max-w-7xl mx-auto px-lg">
           <SectionTitle
-            subtitle="Keunggulan Kami"
             title="Mengapa Memilih Harmoni Travel?"
             description="Kami berkomitmen memberikan pengalaman wisata terbaik dengan standar kualitas tinggi"
           />
@@ -90,7 +89,6 @@ export default function Home() {
       <section className="py-4xl bg-white">
         <div className="max-w-7xl mx-auto px-lg">
           <SectionTitle
-            subtitle="Paket Pilihan"
             title="Paket Wisata Terfavorit"
             description="Jelajahi koleksi paket wisata terbaik kami yang telah dipercaya ribuan wisatawan"
           />
