@@ -6,7 +6,6 @@ export default {
     ],
     theme: {
         extend: {
-
             container: {
                 center: true,
                 padding: '1rem',
@@ -25,10 +24,16 @@ export default {
                 success: "#10B981",      // Emerald green
                 warning: "#FCA311",      // Amber
                 error: "#EF4444",        // Red
+                // Professional Admin Palette
+                panel: {
+                    dark: "#0f172a",
+                    light: "#f8fafc",
+                },
             },
             fontFamily: {
                 inter: ["Inter", "sans-serif"],
                 poppins: ["Poppins", "sans-serif"],
+                outfit: ["Outfit", "sans-serif"],
             },
             spacing: {
                 xs: "4px",
@@ -43,8 +48,14 @@ export default {
             boxShadow: {
                 soft: "0 10px 30px rgba(0, 0, 0, 0.1)",
                 medium: "0 20px 40px rgba(0, 0, 0, 0.15)",
+                premium: "0 25px 50px -12px rgba(99, 102, 241, 0.15)",
             },
+            borderRadius: {
+                '3xl': '1.5rem',
+                '4xl': '2rem',
+            }
         },
     },
     plugins: [],
 }
+
