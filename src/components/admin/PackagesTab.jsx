@@ -239,7 +239,7 @@ export default function PackagesTab({
                   <td className="px-4 py-4 font-bold text-slate-900 text-xs">IDR {pkg.price}</td>
                   <td className="px-4 py-4 text-center">
                     <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                      Live
+                      Active
                     </span>
                   </td>
                   <td className="pl-4 pr-6 py-4">

@@ -131,7 +131,7 @@ export default function CategoriesTab({
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-100">
                 <th className="pl-6 pr-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  ID
+                  No
                 </th>
                 <th className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Category Name
@@ -145,9 +145,9 @@ export default function CategoriesTab({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {categoryList.map((cat) => (
+              {categoryList.map((cat, index) => (
                 <tr key={cat.id} className="hover:bg-slate-50/50 transition-colors group">
-                  <td className="pl-6 pr-4 py-4 text-xs font-bold text-slate-400">#CAT-0{cat.id}</td>
+                  <td className="pl-6 pr-4 py-4 text-xs font-bold text-slate-400">{index + 1}</td>
                   <td className="px-4 py-4">
                     <span className="text-xs font-bold text-slate-900">{cat.name}</span>
                   </td>
