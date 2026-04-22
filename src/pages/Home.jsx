@@ -6,7 +6,6 @@ import PackageCard from "../components/PackageCard";
 import TestimonialCarousel from "../components/TestimonialCarousel";
 import { packages } from "../data/packages";
 import { testimonials } from "../data/testimonials";
-import { blogs } from "../data/blog";
 import {
   HiGlobeAlt,
   HiShieldCheck,
