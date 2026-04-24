@@ -6,8 +6,23 @@ import AdminSidebar from "../components/AdminSidebar";
 import DashboardTab from "../components/admin/DashboardTab";
 import PackagesTab from "../components/admin/PackagesTab";
 import CategoriesTab from "../components/admin/CategoriesTab";
+import TestimonialsTab from "../components/admin/TestimonialsTab";
+import { testimonials } from "../data/testimonials";
+import GalleryTab from "../components/admin/GalleryTab";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+
 
 export default function Admin() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (!isLoggedIn) {
+      navigate("/login");
+    }
+  }, [navigate]);
   const [currentTab, setCurrentTab] = useState("dashboard");
   const [packageList, setPackageList] = useState(packages);
   const [categoryList, setCategoryList] = useState(packageCategories.filter(c => c.slug !== "semua"));
@@ -16,15 +31,44 @@ export default function Admin() {
   const [showCatForm, setShowCatForm] = useState(false);
   const [editingCatId, setEditingCatId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   const [formData, setFormData] = useState({
     title: "", category: "", price: "", duration: "", description: "", image: "",
   });
 
   const [catFormData, setCatFormData] = useState({ name: "", slug: "" });
 
+  // ============ TESTIMONIALS STATE ============
+  const [testimonialList, setTestimonialList] = useState(testimonials);
+  const [showTestForm, setShowTestForm] = useState(false);
+  const [editingTestId, setEditingTestId] = useState(null);
+  const [searchTestQuery, setSearchTestQuery] = useState("");
+
+  // ============ GALLERY STATE ============
+  const galleryItems = [
+    { id: 1, title: "Raja Ampat Beach", category: "Destinasi", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80", description: "Pantai indah dengan terumbu karang yang memukau" },
+    { id: 2, title: "Luxury Resort", category: "Hotel", image: "https://images.unsplash.com/photo-1551632786-fc43ea25ad16?w=400&q=80", description: "Resort bintang lima dengan fasilitas lengkap" },
+    { id: 3, title: "Diving Adventure", category: "Aktivitas", image: "https://images.unsplash.com/photo-1544551763-92ab472cad5d?w=400&q=80", description: "Petualangan menyelam di kedalaman laut" },
+    { id: 4, title: "Traditional Food", category: "Kuliner", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80", description: "Makanan tradisional Indonesia yang lezat" },
+    { id: 5, title: "Mount Bromo Sunrise", category: "Pemandangan", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80", description: "Matahari terbit di puncak gunung Bromo" },
+    { id: 6, title: "Waterfall Trek", category: "Aktivitas", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400&q=80", description: "Trekking menuju air terjun tersembunyi" }
+  ];
+
+  const [galleryList, setGalleryList] = useState(galleryItems);
+  const [showGalleryForm, setShowGalleryForm] = useState(false);
+  const [editingGalleryId, setEditingGalleryId] = useState(null);
+  const [searchGalleryQuery, setSearchGalleryQuery] = useState("");
+
+  const [galleryFormData, setGalleryFormData] = useState({
+    title: "", category: "", image: "", description: ""
+  });
+
+  const [testFormData, setTestFormData] = useState({
+    name: "", title: "", image: "", package: "", rating: 5, text: ""
+  });
+
   // ============ PACKAGES HANDLERS ============
-  const filteredPackages = packageList.filter(pkg => 
+  const filteredPackages = packageList.filter(pkg =>
     pkg.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     pkg.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -109,6 +153,104 @@ export default function Admin() {
     }
   };
 
+  // ============ TESTIMONIALS HANDLERS ============
+  const filteredTestimonials = testimonialList.filter(test =>
+    test.name.toLowerCase().includes(searchTestQuery.toLowerCase()) ||
+    test.package.toLowerCase().includes(searchTestQuery.toLowerCase())
+  );
+
+  // ============ GALLERY HANDLERS ============
+  const filteredGallery = galleryList.filter(item =>
+    item.title.toLowerCase().includes(searchGalleryQuery.toLowerCase()) ||
+    item.category.toLowerCase().includes(searchGalleryQuery.toLowerCase())
+  );
+
+  const handleGalleryInputChange = (e) => {
+    const { name, value } = e.target;
+    setGalleryFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleGallerySubmit = (e) => {
+    e.preventDefault();
+    if (editingGalleryId) {
+      setGalleryList(prev => prev.map(item => item.id === editingGalleryId ? { ...item, ...galleryFormData } : item));
+      setEditingGalleryId(null);
+    } else {
+      const newItem = {
+        id: Math.max(...galleryList.map(i => i.id), 0) + 1,
+        ...galleryFormData
+      };
+      setGalleryList(prev => [...prev, newItem]);
+    }
+    setGalleryFormData({ title: "", category: "", image: "", description: "" });
+    setShowGalleryForm(false);
+  };
+
+  const handleGalleryEdit = (item) => {
+    setGalleryFormData({
+      title: item.title,
+      category: item.category,
+      image: item.image,
+      description: item.description
+    });
+    setEditingGalleryId(item.id);
+    setShowGalleryForm(true);
+  };
+
+  const handleGalleryDelete = (id) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus media ini?")) {
+      setGalleryList(prev => prev.filter(item => item.id !== id));
+    }
+  };
+
+  const handleGalleryCancel = () => {
+    setShowGalleryForm(false);
+    setEditingGalleryId(null);
+    setGalleryFormData({ title: "", category: "", image: "", description: "" });
+  };
+
+  const handleTestInputChange = (e) => {
+    const { name, value } = e.target;
+    setTestFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleTestSubmit = (e) => {
+    e.preventDefault();
+    if (editingTestId) {
+      setTestimonialList(prev => prev.map(t => t.id === editingTestId ? { ...t, ...testFormData } : t));
+      setEditingTestId(null);
+    } else {
+      const newTest = {
+        id: Math.max(...testimonialList.map(t => t.id), 0) + 1,
+        ...testFormData
+      };
+      setTestimonialList(prev => [...prev, newTest]);
+    }
+    setTestFormData({ name: "", title: "", image: "", package: "", rating: 5, text: "" });
+    setShowTestForm(false);
+  };
+
+  const handleTestEdit = (test) => {
+    setTestFormData({
+      name: test.name, title: test.title, image: test.image,
+      package: test.package, rating: test.rating, text: test.text
+    });
+    setEditingTestId(test.id);
+    setShowTestForm(true);
+  };
+
+  const handleTestDelete = (id) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus testimonial ini?")) {
+      setTestimonialList(prev => prev.filter(t => t.id !== id));
+    }
+  };
+
+  const handleTestCancel = () => {
+    setShowTestForm(false);
+    setEditingTestId(null);
+    setTestFormData({ name: "", title: "", image: "", package: "", rating: 5, text: "" });
+  };
+
   // ============ HEADER TEXT ============
   const headerText = {
     dashboard: "Dashboard Overview",
@@ -142,7 +284,7 @@ export default function Admin() {
                   {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </span>
               </div>
-              
+
             </div>
           </div>
         </header>
@@ -155,7 +297,7 @@ export default function Admin() {
             )}
 
             {currentTab === "packages" && (
-              <PackagesTab 
+              <PackagesTab
                 packageList={packageList}
                 filteredPackages={filteredPackages}
                 searchQuery={searchQuery}
@@ -189,8 +331,44 @@ export default function Admin() {
               />
             )}
 
+            {currentTab === "testimonials" && (
+              <TestimonialsTab
+                testimonialList={testimonialList}
+                filteredTestimonials={filteredTestimonials}
+                searchQuery={searchTestQuery}
+                setSearchQuery={setSearchTestQuery}
+                showForm={showTestForm}
+                setShowForm={setShowTestForm}
+                editingId={editingTestId}
+                formData={testFormData}
+                handleInputChange={handleTestInputChange}
+                handleSubmit={handleTestSubmit}
+                handleEdit={handleTestEdit}
+                handleDelete={handleTestDelete}
+                handleCancel={handleTestCancel}
+              />
+            )}
+
             {/* Coming Soon Tabs */}
-            {["testimonials", "gallery", "settings"].includes(currentTab) && (
+            {currentTab === "gallery" && (
+              <GalleryTab
+                galleryList={galleryList}
+                filteredGallery={filteredGallery}
+                searchQuery={searchGalleryQuery}
+                setSearchQuery={setSearchGalleryQuery}
+                showForm={showGalleryForm}
+                setShowForm={setShowGalleryForm}
+                editingId={editingGalleryId}
+                formData={galleryFormData}
+                handleInputChange={handleGalleryInputChange}
+                handleSubmit={handleGallerySubmit}
+                handleEdit={handleGalleryEdit}
+                handleDelete={handleGalleryDelete}
+                handleCancel={handleGalleryCancel}
+              />
+            )}
+
+            {["settings"].includes(currentTab) && (
               <motion.div
                 key="coming-soon"
                 initial={{ opacity: 0 }}
@@ -204,7 +382,7 @@ export default function Admin() {
                 <p className="text-slate-400 text-xs max-w-xs mt-3 leading-relaxed font-medium uppercase tracking-widest">
                   The <span className="text-indigo-600">{currentTab}</span> interface is being optimized.
                 </p>
-                <button 
+                <button
                   onClick={() => setCurrentTab("dashboard")}
                   className="mt-8 px-6 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all"
                 >

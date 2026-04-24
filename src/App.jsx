@@ -6,25 +6,31 @@ import Packages from "./pages/Packages";
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
+import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
 import "./App.css";
 
 function AppContent() {
   const location = useLocation();
   const isAdminPage = location.pathname === "/admin";
+  const isLoginPage = location.pathname === "/login";
+  const isForgotPasswordPage = location.pathname === "/forgot-password";
 
   return (
     <div className="flex flex-col min-h-screen">
-      {!isAdminPage && <Navbar />}
+      {!isAdminPage && !isLoginPage && !isForgotPasswordPage && <Navbar />}
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/packages" element={<Packages />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>
-      {!isAdminPage && <Footer />}
+      {!isAdminPage && !isLoginPage && !isForgotPasswordPage && <Footer />}
     </div>
   );
 }
