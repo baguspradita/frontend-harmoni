@@ -4,7 +4,6 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Packages from "./pages/Packages";
 import Gallery from "./pages/Gallery";
-import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -24,7 +23,6 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/packages" element={<Packages />} />
           <Route path="/gallery" element={<Gallery />} />
-          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/admin" element={<Admin />} />

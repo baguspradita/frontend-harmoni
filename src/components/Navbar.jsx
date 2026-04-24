@@ -12,7 +12,6 @@ export default function Navbar() {
     { name: "Beranda", path: "/" },
     { name: "Paket Wisata", path: "/packages" },
     { name: "Galeri", path: "/gallery" },
-    { name: "Kontak", path: "/contact" },
   ];
 
   const isActive = (path) => location.pathname === path;
