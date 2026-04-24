@@ -1,7 +1,9 @@
+import { authService } from '../services/authService';
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { HiMail, HiLockClosed, HiEye, HiEyeOff } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -21,27 +23,46 @@ export default function Login() {
     }
   }, []);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    // Simulasi login validation
-    if (email === "admin@harmoni.com" && password === "admin123") {
-      setTimeout(() => {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userEmail", email);
-        if (rememberMe) {
-          localStorage.setItem("rememberedEmail", email);
+    try {
+      // Panggil API login
+      const response = await authService.login({
+        email: email.trim(),
+        password
+      });
+
+      // Jika berhasil, simpan token
+      if (response.token) {
+        localStorage.setItem('authToken', response.token);
+        localStorage.setItem('userEmail', email);
+
+        if (response.user) {
+          localStorage.setItem('userData', JSON.stringify(response.user));
         }
-        setIsLoading(false);
-        navigate("/admin");
-      }, 1000);
-    } else {
-      setTimeout(() => {
-        setError("Email atau password salah. Coba: admin@harmoni.com / admin123");
-        setIsLoading(false);
-      }, 1000);
+
+        if (rememberMe) {
+          localStorage.setItem('rememberedEmail', email);
+        } else {
+          localStorage.removeItem('rememberedEmail');
+        }
+
+        // Redirect ke admin
+        navigate('/admin');
+      }
+    } catch (err) {
+      // Tampilkan error
+      const errorMessage = typeof err === 'string'
+        ? err
+        : err.message || 'Login gagal. Silakan coba lagi.';
+
+      setError(errorMessage);
+      console.error('❌ Login error:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 

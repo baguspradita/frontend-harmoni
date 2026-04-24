@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HeroSection from "../components/HeroSection";
 import SectionTitle from "../components/SectionTitle";
 import PackageCard from "../components/PackageCard";
 import TestimonialCarousel from "../components/TestimonialCarousel";
-import { packages } from "../data/packages";
-import { testimonials } from "../data/testimonials";
+import { packageService } from "../services/packageService";
+import { testimonialsService } from "../services/testimonialsService";
 import {
   HiGlobeAlt,
   HiShieldCheck,
@@ -14,8 +14,19 @@ import {
 } from "react-icons/hi";
 
 export default function Home() {
-  const featuredPackages = packages.slice(0, 3);
+  // ========== STATE ==========
+  // Packages
+  const [packages, setPackages] = useState([]);
+  const [packagesLoading, setPackagesLoading] = useState(true);
+  const [packagesError, setPackagesError] = useState('');
 
+  // Testimonials
+  const [testimonials, setTestimonials] = useState([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
+  const [testimonialsError, setTestimonialsError] = useState('');
+
+  // ========== STATIC DATA ==========
+  // ✅ TAMBAH: Features array yang hilang
   const features = [
     {
       icon: HiGlobeAlt,
@@ -42,6 +53,75 @@ export default function Home() {
         "Tim profesional yang siap membantu 24/7 untuk pengalaman terbaik.",
     },
   ];
+
+  // ========== FETCH DATA ==========
+  useEffect(() => {
+    // ✅ TAMBAH: Fetch Packages
+    const fetchPackages = async () => {
+      try {
+        setPackagesLoading(true);
+        console.log('📥 Fetching packages...');
+        const data = await packageService.getAll();
+
+        // Handle response format
+        const packageList = Array.isArray(data) ? data : data?.data || [];
+        setPackages(packageList);
+
+        console.log('✅ Packages loaded successfully:', packageList.length, 'items');
+      } catch (err) {
+        const errorMsg = typeof err === 'string' ? err : err?.message || 'Gagal memuat paket wisata';
+        setPackagesError(errorMsg);
+        console.error('❌ Packages error:', errorMsg);
+        setPackages([]);
+      } finally {
+        setPackagesLoading(false);
+      }
+    };
+
+    // Fetch Testimonials
+    const fetchTestimonials = async () => {
+      try {
+        setTestimonialsLoading(true);
+        console.log('📥 Fetching testimonials...');
+
+        const data = await testimonialsService.getAll();
+
+        // 🔍 DEBUG LENGKAP
+        console.log('=== TESTIMONIAL DEBUG ===');
+        console.log('1️⃣ Raw API Response:', data);
+        console.log('2️⃣ Type:', typeof data);
+        console.log('3️⃣ Is Array?:', Array.isArray(data));
+        console.log('4️⃣ Length:', data?.length);
+        if (data && data.length > 0) {
+          console.log('5️⃣ First Item:', data[0]);
+        }
+        console.log('========================');
+
+        // Validasi array
+        const testimonialList = Array.isArray(data) ? data : [];
+
+        console.log('6️⃣ Final testimonialList:', testimonialList);
+        console.log('7️⃣ Final Length:', testimonialList.length);
+
+        setTestimonials(testimonialList);
+        console.log('✅ Testimonials loaded successfully:', testimonialList.length, 'items');
+      } catch (err) {
+        const errorMsg = typeof err === 'string' ? err : err?.message || 'Gagal memuat testimoni';
+        setTestimonialsError(errorMsg);
+        console.error('❌ Testimonials error:', errorMsg);
+        setTestimonials([]);
+      } finally {
+        setTestimonialsLoading(false);
+      }
+    };
+
+    // ✅ Call both fetch functions
+    fetchPackages();
+    fetchTestimonials();
+  }, []); // Empty dependency array = fetch sekali saat mount
+
+  // Ambil 3 paket featured dari data yang diload
+  const featuredPackages = packages.slice(0, 3);
 
   return (
     <div className="overflow-hidden">
@@ -92,11 +172,39 @@ export default function Home() {
             description="Jelajahi koleksi paket wisata terbaik kami yang telah dipercaya ribuan wisatawan"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2xl mt-3xl">
-            {featuredPackages.map((pkg, index) => (
-              <PackageCard key={pkg.id} package={pkg} index={index} />
-            ))}
-          </div>
+          {/* Loading State */}
+          {packagesLoading && (
+            <div className="mt-3xl text-center py-8">
+              <div className="inline-block">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              </div>
+              <p className="mt-4 text-gray-600">Memuat paket wisata...</p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {packagesError && !packagesLoading && (
+            <div className="mt-3xl p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center">
+              <p>{packagesError}</p>
+            </div>
+          )}
+
+          {/* Packages Grid */}
+          {!packagesLoading && !packagesError && (
+            <>
+              {featuredPackages.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2xl mt-3xl">
+                  {featuredPackages.map((pkg, index) => (
+                    <PackageCard key={pkg.id} package={pkg} index={index} />
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-3xl text-center py-8 text-gray-600">
+                  <p>Tidak ada paket wisata yang tersedia</p>
+                </div>
+              )}
+            </>
+          )}
 
           <motion.div
             initial={{ opacity: 0 }}
@@ -123,9 +231,35 @@ export default function Home() {
             description="Ribuan wisatawan telah merasakan pengalaman luar biasa bersama kami"
           />
 
-          <div className="mt-3xl">
-            <TestimonialCarousel testimonials={testimonials} />
-          </div>
+          {/* Loading State */}
+          {testimonialsLoading && (
+            <div className="mt-3xl text-center py-8">
+              <div className="inline-block">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              </div>
+              <p className="mt-4 text-gray-600">Memuat testimoni...</p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {testimonialsError && !testimonialsLoading && (
+            <div className="mt-3xl p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center">
+              <p>{testimonialsError}</p>
+            </div>
+          )}
+
+          {/* Testimonials Carousel */}
+          {!testimonialsLoading && !testimonialsError && (
+            <div className="mt-3xl">
+              {testimonials.length > 0 ? (
+                <TestimonialCarousel testimonials={testimonials} />
+              ) : (
+                <div className="text-center py-8 text-gray-600">
+                  <p>Tidak ada testimoni yang tersedia</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
@@ -172,8 +306,6 @@ export default function Home() {
           </a>
         </motion.div>
       </motion.section>
-
-
     </div>
   );
 }

@@ -125,10 +125,11 @@ export default function PackagesTab({
                     </label>
                     <input
                       type="text"
-                      name="duration"
-                      value={formData.duration}
+                      name="durasi"
+                      value={formData.durasi}
                       onChange={handleInputChange}
                       required
+                      placeholder="e.g. 3 Hari 2 Malam"
                       className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none text-sm font-medium text-slate-900 transition-all shadow-sm"
                     />
                   </div>
@@ -158,6 +159,21 @@ export default function PackagesTab({
                     value={formData.image}
                     onChange={handleInputChange}
                     required
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none text-sm font-medium text-slate-900 transition-all shadow-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2 ml-1">
+                    Highlight Utama (Pisahkan dengan koma)
+                  </label>
+                  <input
+                    type="text"
+                    name="highlight_utama"
+                    value={formData.highlight_utama}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Borobudur, Prambanan, Malioboro"
                     className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none text-sm font-medium text-slate-900 transition-all shadow-sm"
                   />
                 </div>
@@ -225,9 +241,9 @@ export default function PackagesTab({
                       <img src={pkg.image} className="w-10 h-10 rounded-lg object-cover" alt="" />
                       <div>
                         <p className="text-xs font-bold text-slate-900 truncate max-w-[200px]">
-                          {pkg.title}
+                          {pkg.title || pkg.name}
                         </p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">{pkg.duration}</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{pkg.durasi || pkg.duration}</p>
                       </div>
                     </div>
                   </td>

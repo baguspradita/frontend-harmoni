@@ -1,17 +1,45 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import SectionTitle from "../components/SectionTitle";
 import PackageCard from "../components/PackageCard";
-import { packages, packageCategories } from "../data/packages";
+import { packageService } from "../services/packageService";
+import { categoriesService } from "../services/categoriesService";
 
 
 export default function Packages() {
   const [activeCategory, setActiveCategory] = useState("Semua");
+  const [packageList, setPackageList] = useState([]);
+  const [categoryList, setCategoryList] = useState([{ id: 'all', name: "Semua", slug: "semua" }]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [pkgs, cats] = await Promise.all([
+          packageService.getAll(),
+          categoriesService.getAll()
+        ]);
+        
+        setPackageList(pkgs);
+        // Gabungkan kategori "Semua" dengan kategori dari API
+        setCategoryList([{ id: 'all', name: "Semua", slug: "semua" }, ...cats]);
+        setIsLoading(false);
+      } catch (err) {
+        console.error("Gagal memuat data:", err);
+        setError("Gagal memuat data paket wisata. Silakan coba beberapa saat lagi.");
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const filteredPackages =
     activeCategory === "Semua"
-      ? packages
-      : packages.filter((pkg) => pkg.category === activeCategory);
+      ? packageList
+      : packageList.filter((pkg) => pkg.category === activeCategory);
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -59,7 +87,7 @@ export default function Packages() {
             transition={{ delay: 0.2 }}
             className="flex flex-wrap gap-md justify-center mb-3xl"
           >
-            {packageCategories.map((category) => (
+            {categoryList.map((category) => (
               <button
                 key={category.id}
                 onClick={() => setActiveCategory(category.name)}
@@ -73,27 +101,52 @@ export default function Packages() {
             ))}
           </motion.div>
 
-          {/* Packages Grid */}
-          <motion.div
-            layout
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2xl"
-          >
-            {filteredPackages.map((pkg, index) => (
-              <motion.div
-                key={pkg.id}
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center py-3xl">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p className="font-inter text-gray-500 font-medium">Memuat paket wisata...</p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && !isLoading && (
+            <div className="text-center py-3xl">
+              <p className="font-inter text-red-500 text-lg mb-4">{error}</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="px-6 py-2 bg-primary text-white rounded-lg font-bold"
               >
-                <PackageCard package={pkg} index={index} />
-              </motion.div>
-            ))}
-          </motion.div>
+                Coba Lagi
+              </button>
+            </div>
+          )}
+
+          {/* Packages Grid */}
+          {!isLoading && !error && (
+            <motion.div
+              layout
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2xl"
+            >
+              <AnimatePresence>
+                {filteredPackages.map((pkg, index) => (
+                  <motion.div
+                    key={pkg.id}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                  >
+                    <PackageCard package={pkg} index={index} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          )}
 
           {/* Empty State */}
-          {filteredPackages.length === 0 && (
+          {!isLoading && !error && filteredPackages.length === 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

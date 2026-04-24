@@ -12,6 +12,11 @@ export default function PackageCard({ package: pkg, index }) {
   const reviews = 128;
   const maxHighlights = 2;
 
+  // Gabungkan highlights dari field lama (highlights) atau field baru (highlight_utama)
+  // highlight_utama di backend berupa string yang dipisahkan koma
+  const finalHighlights = pkg.highlights || 
+    (pkg.highlight_utama ? pkg.highlight_utama.split(',').map(h => h.trim()) : []);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -25,7 +30,7 @@ export default function PackageCard({ package: pkg, index }) {
       <div className="relative h-64 overflow-hidden bg-gray-200">
         <img
           src={pkg.image}
-          alt={pkg.title}
+          alt={pkg.title || pkg.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           loading="lazy"
         />
@@ -42,7 +47,7 @@ export default function PackageCard({ package: pkg, index }) {
       <div className="p-xl flex-1 flex flex-col">
         {/* Title */}
         <h3 className="font-poppins font-bold text-lg text-dark mb-md line-clamp-2">
-          {pkg.title}
+          {pkg.title || pkg.name}
         </h3>
 
         {/* Rating */}
@@ -72,7 +77,7 @@ export default function PackageCard({ package: pkg, index }) {
         <div className="space-y-md mb-lg">
           <div className="flex items-center gap-md text-sm text-dark font-inter">
             <span>📅</span>
-            <span className="font-semibold">{pkg.duration}</span>
+            <span className="font-semibold">{pkg.durasi || pkg.duration || "Durasi tidak tersedia"}</span>
           </div>
          
         </div>
@@ -83,8 +88,8 @@ export default function PackageCard({ package: pkg, index }) {
             Highlight Utama
           </p>
           <div className="space-y-sm">
-            {pkg.highlights
-              .slice(0, showAllHighlights ? pkg.highlights.length : maxHighlights)
+            {finalHighlights
+              .slice(0, showAllHighlights ? finalHighlights.length : maxHighlights)
               .map((highlight, i) => (
                 <div key={i} className="flex items-center gap-md text-sm">
                   <HiCheckCircle className="text-accent w-4 h-4 flex-shrink-0" />
@@ -94,14 +99,14 @@ export default function PackageCard({ package: pkg, index }) {
           </div>
 
           {/* Show More Highlights */}
-          {pkg.highlights.length > maxHighlights && (
+          {finalHighlights.length > maxHighlights && (
             <button
               onClick={() => setShowAllHighlights(!showAllHighlights)}
               className="mt-md font-inter text-xs text-primary font-semibold hover:text-accent transition-colors"
             >
               {showAllHighlights
                 ? "Tampilkan lebih sedikit"
-                : `+${pkg.highlights.length - maxHighlights} lagi`}
+                : `+${finalHighlights.length - maxHighlights} lagi`}
             </button>
           )}
         </div>
@@ -143,12 +148,12 @@ export default function PackageCard({ package: pkg, index }) {
           {/* Improved CTA Button */}
           <a
             href={`https://wa.me/6288227250909?text=Saya%20ingin%20booking%20paket%20${encodeURIComponent(
-              pkg.title
+              pkg.title || pkg.name
             )}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-md px-lg py-md font-inter font-semibold text-sm text-white bg-success hover:bg-opacity-90 active:scale-95 rounded-lg transition-all duration-300 hover:shadow-medium whitespace-nowrap"
-            aria-label={`Pesan paket ${pkg.title} via WhatsApp`}
+            aria-label={`Pesan paket ${pkg.title || pkg.name} via WhatsApp`}
           >
             <FaWhatsapp className="w-4 h-4" />
             Pesan

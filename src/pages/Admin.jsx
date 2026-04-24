@@ -11,6 +11,9 @@ import { testimonials } from "../data/testimonials";
 import GalleryTab from "../components/admin/GalleryTab";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { packageService } from "../services/packageService";
+import { categoriesService } from "../services/categoriesService";
+import { testimonialsService } from "../services/testimonialsService";
 
 
 
@@ -18,11 +21,27 @@ export default function Admin() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const isLoggedIn = localStorage.getItem("isLoggedIn") || localStorage.getItem("authToken");
     if (!isLoggedIn) {
       navigate("/login");
     }
+    fetchData();
   }, [navigate]);
+
+  const fetchData = async () => {
+    try {
+      const [pkgs, cats, tests] = await Promise.all([
+        packageService.getAll(),
+        categoriesService.getAll(),
+        testimonialsService.getAll()
+      ]);
+      setPackageList(pkgs);
+      setCategoryList(cats);
+      setTestimonialList(tests);
+    } catch (err) {
+      console.error("Gagal memuat data:", err);
+    }
+  };
   const [currentTab, setCurrentTab] = useState("dashboard");
   const [packageList, setPackageList] = useState(packages);
   const [categoryList, setCategoryList] = useState(packageCategories.filter(c => c.slug !== "semua"));
@@ -33,7 +52,7 @@ export default function Admin() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const [formData, setFormData] = useState({
-    title: "", category: "", price: "", duration: "", description: "", image: "",
+    title: "", category: "", price: "", durasi: "", description: "", image: "", highlight_utama: "",
   });
 
   const [catFormData, setCatFormData] = useState({ name: "", slug: "" });
@@ -78,41 +97,59 @@ export default function Admin() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingId) {
-      setPackageList(prev => prev.map(pkg => pkg.id === editingId ? { ...pkg, ...formData } : pkg));
-      setEditingId(null);
-    } else {
-      const newPackage = {
-        id: Math.max(...packageList.map(p => p.id), 0) + 1,
-        ...formData, highlights: [], included: [],
-      };
-      setPackageList(prev => [...prev, newPackage]);
+    
+    // Mapping frontend fields to backend fields
+    const payload = {
+      name: formData.title,
+      category: formData.category,
+      price: parseInt(formData.price),
+      durasi: formData.durasi,
+      description: formData.description,
+      image: formData.image,
+      highlight_utama: formData.highlight_utama
+    };
+
+    try {
+      if (editingId) {
+        await packageService.update(editingId, payload);
+      } else {
+        await packageService.create(payload);
+      }
+      fetchData(); // Refresh data
+      handleCancel();
+      setShowForm(false);
+    } catch (err) {
+      alert("Gagal menyimpan data: " + err);
     }
-    setFormData({ title: "", category: "", price: "", duration: "", description: "", image: "" });
-    setShowForm(false);
   };
 
   const handleEdit = (pkg) => {
     setFormData({
-      title: pkg.title, category: pkg.category, price: pkg.price,
-      duration: pkg.duration, description: pkg.description, image: pkg.image,
+      title: pkg.title || pkg.name, category: pkg.category, price: pkg.price,
+      durasi: pkg.durasi || pkg.duration, description: pkg.description, image: pkg.image,
+      highlight_utama: pkg.highlight_utama || (pkg.highlights ? pkg.highlights.join(', ') : ""),
     });
     setEditingId(pkg.id);
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Apakah Anda yakin ingin menghapus paket ini?")) {
-      setPackageList(prev => prev.filter(pkg => pkg.id !== id));
+      try {
+        await packageService.delete(id);
+        fetchData();
+      } catch (err) {
+        alert("Gagal menghapus data: " + err);
+      }
     }
   };
 
   const handleCancel = () => {
     setShowForm(false);
     setEditingId(null);
-    setFormData({ title: "", category: "", price: "", duration: "", description: "", image: "" });
+    setFormData({ title: "", category: "", price: "", durasi: "", description: "", image: "", highlight_utama: "" });
   };
 
   // ============ CATEGORY HANDLERS ============
