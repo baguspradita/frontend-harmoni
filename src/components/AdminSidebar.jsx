@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.jpeg";
+import { authService } from "../services/authService";
+import { useNavigate } from "react-router-dom";
 import {
   HiMenuAlt3,
   HiX,
@@ -12,9 +14,20 @@ import {
   HiLogout,
   HiChevronRight,
   HiTag,
+  HiTicket
 } from "react-icons/hi";
 
+
+
 export default function AdminSidebar({ currentTab, onTabChange }) {
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await authService.logout();
+    navigate('/login');
+  };
+
   const [isOpen, setIsOpen] = useState(true);
 
   const menuItems = [
@@ -26,7 +39,7 @@ export default function AdminSidebar({ currentTab, onTabChange }) {
     {
       id: "packages",
       label: "Paket Wisata",
-      icon: HiShoppingBag,
+      icon: HiTicket,
     },
     {
       id: "categories",
@@ -95,7 +108,7 @@ export default function AdminSidebar({ currentTab, onTabChange }) {
         {/* Navigation */}
         <nav className="flex-grow px-3 space-y-1">
           <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Navigasi</p>
-          
+
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentTab === item.id;
@@ -107,11 +120,10 @@ export default function AdminSidebar({ currentTab, onTabChange }) {
                   onTabChange(item.id);
                   if (window.innerWidth < 1024) setIsOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
-                  isActive 
-                    ? "bg-indigo-50 text-indigo-600 shadow-sm shadow-indigo-500/5" 
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+                    ? "bg-indigo-50 text-indigo-600 shadow-sm shadow-indigo-500/5"
                     : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3.5">
                   <Icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`} />
@@ -128,9 +140,9 @@ export default function AdminSidebar({ currentTab, onTabChange }) {
         {/* User & Logout */}
         <div className="p-4 border-t border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-3 p-2 mb-3">
-            <img 
-              src="https://ui-avatars.com/api/?name=Admin+Harmoni&background=f1f5f9&color=6366f1&bold=true" 
-              alt="Avatar" 
+            <img
+              src="https://ui-avatars.com/api/?name=Admin+Harmoni&background=f1f5f9&color=6366f1&bold=true"
+              alt="Avatar"
               className="w-9 h-9 rounded-lg border border-slate-200"
             />
             <div className="min-w-0">
@@ -140,6 +152,7 @@ export default function AdminSidebar({ currentTab, onTabChange }) {
           </div>
 
           <button 
+            onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all font-bold text-xs"
           >
             <HiLogout className="w-4 h-4" />

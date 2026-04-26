@@ -32,18 +32,10 @@ const normalizeTestimonial = (item) => {
     // ✅ MAP FIELD YANG BENAR: customer_name
     name: 
       item.customer_name || 
-      item.name || 
-      item.full_name || 
-      item.user_name ||
       'Anonymous',
     // ✅ MAP FIELD YANG BENAR: massage (dari database)
     text: 
-      item.massage ||
       item.message ||
-      item.text || 
-      item.description ||
-      item.comment ||
-      item.review ||
       'Great experience!',
     // ✅ Rating
     rating: parseInt(item.rating || item.score || item.stars || 5),

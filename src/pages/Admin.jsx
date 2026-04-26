@@ -28,42 +28,36 @@ export default function Admin() {
     fetchData();
   }, [navigate]);
 
-  const fetchData = async () => {
-    try {
-      const [pkgs, cats, tests] = await Promise.all([
-        packageService.getAll(),
-        categoriesService.getAll(),
-        testimonialsService.getAll()
-      ]);
-      setPackageList(pkgs);
-      setCategoryList(cats);
-      setTestimonialList(tests);
-    } catch (err) {
-      console.error("Gagal memuat data:", err);
-    }
-  };
+  // ============ STATE INITIALIZATION ============
   const [currentTab, setCurrentTab] = useState("dashboard");
-  const [packageList, setPackageList] = useState(packages);
-  const [categoryList, setCategoryList] = useState(packageCategories.filter(c => c.slug !== "semua"));
+  const [packageList, setPackageList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
+  const [testimonialList, setTestimonialList] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [showCatForm, setShowCatForm] = useState(false);
   const [editingCatId, setEditingCatId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showTestForm, setShowTestForm] = useState(false);
+  const [editingTestId, setEditingTestId] = useState(null);
+  const [searchTestQuery, setSearchTestQuery] = useState("");
+  const [showGalleryForm, setShowGalleryForm] = useState(false);
+  const [editingGalleryId, setEditingGalleryId] = useState(null);
+  const [searchGalleryQuery, setSearchGalleryQuery] = useState("");
 
   const [formData, setFormData] = useState({
     title: "", category: "", price: "", durasi: "", description: "", image: "", highlight_utama: "",
   });
 
   const [catFormData, setCatFormData] = useState({ name: "", slug: "" });
+  const [testFormData, setTestFormData] = useState({
+    name: "", title: "", image: "", package: "", rating: 5, text: ""
+  });
+  const [galleryFormData, setGalleryFormData] = useState({
+    title: "", category: "", image: "", description: ""
+  });
 
-  // ============ TESTIMONIALS STATE ============
-  const [testimonialList, setTestimonialList] = useState(testimonials);
-  const [showTestForm, setShowTestForm] = useState(false);
-  const [editingTestId, setEditingTestId] = useState(null);
-  const [searchTestQuery, setSearchTestQuery] = useState("");
-
-  // ============ GALLERY STATE ============
+  // ============ GALLERY STATE SETUP ============
   const galleryItems = [
     { id: 1, title: "Raja Ampat Beach", category: "Destinasi", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80", description: "Pantai indah dengan terumbu karang yang memukau" },
     { id: 2, title: "Luxury Resort", category: "Hotel", image: "https://images.unsplash.com/photo-1551632786-fc43ea25ad16?w=400&q=80", description: "Resort bintang lima dengan fasilitas lengkap" },
@@ -74,17 +68,41 @@ export default function Admin() {
   ];
 
   const [galleryList, setGalleryList] = useState(galleryItems);
-  const [showGalleryForm, setShowGalleryForm] = useState(false);
-  const [editingGalleryId, setEditingGalleryId] = useState(null);
-  const [searchGalleryQuery, setSearchGalleryQuery] = useState("");
 
-  const [galleryFormData, setGalleryFormData] = useState({
-    title: "", category: "", image: "", description: ""
-  });
+  // ============ FETCH DATA FUNCTION (SEBELUM useEffect) ============
+  const fetchData = async () => {
+    try {
+      console.log('🔄 Fetching data from APIs...');
+      const [pkgs, cats, tests] = await Promise.all([
+        packageService.getAll(),
+        categoriesService.getAll(),
+        testimonialsService.getAll()
+      ]);
 
-  const [testFormData, setTestFormData] = useState({
-    name: "", title: "", image: "", package: "", rating: 5, text: ""
-  });
+      console.log('✅ Data fetched successfully');
+      console.log('📦 Packages:', pkgs);
+      console.log('📂 Categories:', cats);
+      console.log('💬 Testimonials:', tests);
+
+      setPackageList(pkgs || []);
+      setCategoryList(cats || []);
+      setTestimonialList(tests || []);
+    } catch (err) {
+      console.error("❌ Gagal memuat data:", err);
+      // Fallback ke data lokal jika API gagal
+      setPackageList(packages);
+      setCategoryList(packageCategories.filter(c => c.slug !== "semua"));
+      setTestimonialList(testimonials);
+    }
+  };
+
+
+
+
+
+
+
+
 
   // ============ PACKAGES HANDLERS ============
   const filteredPackages = packageList.filter(pkg =>
@@ -99,7 +117,7 @@ export default function Admin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Mapping frontend fields to backend fields
     const payload = {
       name: formData.title,
@@ -162,20 +180,32 @@ export default function Admin() {
     }));
   };
 
-  const handleCatSubmit = (e) => {
+  const handleCatSubmit = async (e) => {
     e.preventDefault();
-    if (editingCatId) {
-      setCategoryList(prev => prev.map(c => c.id === editingCatId ? { ...c, ...catFormData } : c));
-      setEditingCatId(null);
-    } else {
-      const newCat = {
-        id: Math.max(...categoryList.map(c => c.id), 0) + 1,
-        ...catFormData
+    try {
+      const payload = {
+        name: catFormData.name,
+        slug: catFormData.slug
       };
-      setCategoryList(prev => [...prev, newCat]);
+
+      if (editingCatId) {
+        // Update category
+        await categoriesService.update(editingCatId, payload);
+        console.log('✅ Category updated successfully');
+      } else {
+        // Create new category
+        await categoriesService.create(payload);
+        console.log('✅ Category created successfully');
+      }
+
+      fetchData(); // Refresh data dari API
+      setEditingCatId(null);
+      setCatFormData({ name: "", slug: "" });
+      setShowCatForm(false);
+    } catch (err) {
+      alert("❌ Gagal menyimpan kategori: " + err);
+      console.error("Category submit error:", err);
     }
-    setCatFormData({ name: "", slug: "" });
-    setShowCatForm(false);
   };
 
   const handleCatEdit = (cat) => {
@@ -184,9 +214,16 @@ export default function Admin() {
     setShowCatForm(true);
   };
 
-  const handleCatDelete = (id) => {
+  const handleCatDelete = async (id) => {
     if (window.confirm("Hapus kategori ini?")) {
-      setCategoryList(prev => prev.filter(c => c.id !== id));
+      try {
+        await categoriesService.delete(id);
+        console.log('✅ Category deleted successfully');
+        fetchData(); // Refresh data dari API
+      } catch (err) {
+        alert("❌ Gagal menghapus kategori: " + err);
+        console.error("Category delete error:", err);
+      }
     }
   };
 
@@ -251,41 +288,95 @@ export default function Admin() {
     setTestFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleTestSubmit = (e) => {
+  const handleTestSubmit = async (e) => {
     e.preventDefault();
-    if (editingTestId) {
-      setTestimonialList(prev => prev.map(t => t.id === editingTestId ? { ...t, ...testFormData } : t));
-      setEditingTestId(null);
-    } else {
-      const newTest = {
-        id: Math.max(...testimonialList.map(t => t.id), 0) + 1,
-        ...testFormData
-      };
-      setTestimonialList(prev => [...prev, newTest]);
+
+    try {
+      // ✅ Konversi rating ke integer
+      const ratingValue = parseInt(testFormData.rating) || 5;
+
+      if (editingTestId) {
+        // UPDATE
+        const payload = {
+          customer_name: testFormData.name,
+          message: testFormData.text,
+          rating: ratingValue  // ✅ Integer
+        };
+
+        await testimonialsService.update(editingTestId, payload);
+
+        // Update state lokal dengan rating yang sudah dikonversi
+        setTestimonialList(prev =>
+          prev.map(t => t.id === editingTestId
+            ? {
+              ...t,
+              ...testFormData,
+              rating: ratingValue  // ✅ Integer
+            }
+            : t
+          )
+        );
+        setEditingTestId(null);
+        console.log(' Testimoni berhasil diupdate');
+      } else {
+        // CREATE
+        const payload = {
+          customer_name: testFormData.name,
+          message: testFormData.text,
+          rating: ratingValue  // ✅ Integer
+        };
+
+        const response = await testimonialsService.create(payload);
+
+        // Tambah ke state lokal
+        const newTest = {
+          id: response.id || Math.random(),
+          name: testFormData.name,
+          text: testFormData.text,
+          rating: ratingValue  // ✅ Integer
+        };
+        setTestimonialList(prev => [...prev, newTest]);
+        console.log('Testimoni berhasil ditambahkan');
+      }
+    } catch (error) {
+      console.error('❌ Error:', error);
+      alert('Gagal menyimpan testimoni: ' + error);
+    } finally {
+      setTestFormData({ name: "", title: "", image: "", package: "", rating: 5, text: "" });
+      setShowTestForm(false);
     }
-    setTestFormData({ name: "", title: "", image: "", package: "", rating: 5, text: "" });
-    setShowTestForm(false);
   };
 
   const handleTestEdit = (test) => {
     setTestFormData({
-      name: test.name, title: test.title, image: test.image,
-      package: test.package, rating: test.rating, text: test.text
+      name: test.name,
+      title: test.title || "",
+      image: test.image || "",
+      package: test.package || "",
+      rating: test.rating,
+      text: test.text
     });
     setEditingTestId(test.id);
     setShowTestForm(true);
-  };
-
-  const handleTestDelete = (id) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus testimonial ini?")) {
-      setTestimonialList(prev => prev.filter(t => t.id !== id));
-    }
   };
 
   const handleTestCancel = () => {
     setShowTestForm(false);
     setEditingTestId(null);
     setTestFormData({ name: "", title: "", image: "", package: "", rating: 5, text: "" });
+  };
+
+  const handleTestDelete = async (id) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus testimoni ini?")) {
+      try {
+        await testimonialsService.delete(id);
+        setTestimonialList(prev => prev.filter(t => t.id !== id));
+        console.log('✅ Testimoni berhasil dihapus');
+      } catch (error) {
+        console.error('❌ Error:', error);
+        alert('Gagal menghapus testimoni: ' + error);
+      }
+    }
   };
 
   // ============ HEADER TEXT ============
@@ -330,7 +421,7 @@ export default function Admin() {
           <AnimatePresence mode="wait">
             {/* Tab Content */}
             {currentTab === "dashboard" && (
-              <DashboardTab packageList={packageList} categoryList={categoryList} />
+              <DashboardTab packageList={packageList} categoryList={categoryList} testimonialList={testimonialList} galleryList={galleryList} />
             )}
 
             {currentTab === "packages" && (

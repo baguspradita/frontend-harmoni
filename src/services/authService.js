@@ -23,10 +23,20 @@ export const authService = {
   },
 
   // Logout
-  logout: () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userData');
+  logout: async () => {
+    try {
+      // Panggil API logout dari backend
+      await api.post('/auth/logout');
+    } catch (error) {
+      // Tetap lanjut logout meskipun API gagal
+      console.error('Logout error:', error);
+    } finally {
+      // Selalu hapus data local
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userData');
+      localStorage.removeItem('rememberedEmail');
+    }
   },
 
   // Cek user sudah login

@@ -1,3 +1,5 @@
+import { useState } from "react";
+import AdminPackageDetailModal from "./AdminPackageDetailModal";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   HiPlus,
@@ -27,6 +29,10 @@ export default function PackagesTab({
   handleCancel,
   categoryList,
 }) {
+
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
   return (
     <motion.div
       key="packages"
@@ -220,7 +226,7 @@ export default function PackagesTab({
                   Package Details
                 </th>
                 <th className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  Region
+                  Category
                 </th>
                 <th className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Price
@@ -249,7 +255,7 @@ export default function PackagesTab({
                   </td>
                   <td className="px-4 py-4">
                     <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                      {pkg.category}
+                      {pkg.category || 'Uncategorized'}
                     </span>
                   </td>
                   <td className="px-4 py-4 font-bold text-slate-900 text-xs">IDR {pkg.price}</td>
@@ -260,6 +266,16 @@ export default function PackagesTab({
                   </td>
                   <td className="pl-4 pr-6 py-4">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => {
+                          setSelectedPackage(pkg);        // ← Simpan paket yang diklik
+                          setIsDetailOpen(true);           // ← Buka modal
+                        }}
+                        className="p-1.5 hover:bg-white hover:border-slate-300 border border-transparent rounded-lg text-slate-400 hover:text-blue-600 transition-all"
+                        title="Lihat Detail"
+                      >
+                        <HiPhotograph className="w-3.5 h-3.5" />  {/* Icon kamera */}
+                      </button>
                       <button
                         onClick={() => handleEdit(pkg)}
                         className="p-1.5 hover:bg-white hover:border-slate-300 border border-transparent rounded-lg text-slate-400 hover:text-indigo-600 transition-all"
@@ -280,6 +296,12 @@ export default function PackagesTab({
           </table>
         </div>
       </div>
+      {/* Modal Detail Package */}
+      <AdminPackageDetailModal
+        package={selectedPackage}
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+      />
     </motion.div>
   );
 }

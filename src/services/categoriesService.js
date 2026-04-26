@@ -1,40 +1,43 @@
 import api from './api';
 
-// ✅ Helper function untuk handle berbagai format response
 const parseResponse = (data) => {
-  // Format 1: Array langsung
   if (Array.isArray(data)) {
     return data;
   }
-
-  // Format 2: { data: [...] }
   if (data?.data && Array.isArray(data.data)) {
     return data.data;
   }
-
-  // Format 3: { categories: [...] }
   if (data?.categories && Array.isArray(data.categories)) {
     return data.categories;
   }
-
-  // Format 4: { result: [...] }
   if (data?.result && Array.isArray(data.result)) {
     return data.result;
   }
+  return [];
+};
 
-  return data;
+const normalizeCategories = (data) => {
+  if (!Array.isArray(data)) return [];
+  
+  return data.map(cat => ({
+    id: cat.id || cat._id,
+    name: cat.name || cat.title || 'No Name',
+    slug: cat.slug || cat.name?.toLowerCase().replace(/\s+/g, '-') || '',
+  }));
 };
 
 export const categoriesService = {
   getAll: async () => {
     try {
+      console.log('📥 Fetching categories from API...');
       const response = await api.get('/categories');
       const parsedData = parseResponse(response.data);
-      return parsedData;
+      const normalized = normalizeCategories(parsedData);
+      console.log('✅ Normalized categories:', normalized);
+      return normalized;
     } catch (error) {
-      const errorMessage = error.message || 'Gagal memuat kategori';
-      console.error('❌ getAll error:', errorMessage);
-      throw errorMessage;
+      console.error('❌ getAll error:', error);
+      return [];
     }
   },
 
@@ -49,7 +52,7 @@ export const categoriesService = {
 
   create: async (data) => {
     try {
-      const response = await api.post('/api/categories', data);
+      const response = await api.post('/categories', data);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -58,7 +61,7 @@ export const categoriesService = {
 
   update: async (id, data) => {
     try {
-      const response = await api.put(`/api/categories/${id}`, data);
+      const response = await api.put(`/categories/${id}`, data);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -67,10 +70,10 @@ export const categoriesService = {
 
   delete: async (id) => {
     try {
-      const response = await api.delete(`/api/categories/${id}`);
+      const response = await api.delete(`/categories/${id}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
-  },
+  }
 };
