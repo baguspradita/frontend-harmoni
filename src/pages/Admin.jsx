@@ -11,85 +11,276 @@ import { testimonials } from "../data/testimonials";
 import GalleryTab from "../components/admin/GalleryTab";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
+// ═══════════════════════════════════════════════════════════════
+// 📥 IMPORT SERVICES - Mengambil services untuk API calls
+// ═══════════════════════════════════════════════════════════════
 import { packageService } from "../services/packageService";
 import { categoriesService } from "../services/categoriesService";
 import { testimonialsService } from "../services/testimonialsService";
+import { galleryService } from "../services/galleryService";
+import { authService } from "../services/authService";
 
-
+// ═══════════════════════════════════════════════════════════════
+// 🏢 ADMIN COMPONENT - Main dashboard untuk admin
+// ═══════════════════════════════════════════════════════════════
+// Component ini:
+// 1. Verify token saat mount (protected page)
+// 2. Fetch data dari backend (packages, categories, testimonials, gallery)
+// 3. Manage state untuk semua CRUD operations
+// 4. Render tabs (Dashboard, Packages, Categories, Testimonials, Gallery)
 
 export default function Admin() {
   const navigate = useNavigate();
 
+  // ═══════════════════════════════════════════════════════════════
+  // 🔐 VERIFY TOKEN ON MOUNT - Cek user authenticated saat component load
+  // ═══════════════════════════════════════════════════════════════
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn") || localStorage.getItem("authToken");
-    if (!isLoggedIn) {
-      navigate("/login");
-    }
-    fetchData();
+    const verifyAndFetch = async () => {
+      try {
+        // 1. Verify token dengan backend
+        //    Ini adalah security check untuk ensure user login
+        const isValid = await authService.verifyToken();
+        
+        // 2. Jika token invalid, logout dan redirect ke login
+        if (!isValid) {
+          console.log('⚠️ Token tidak valid, logout...');
+          authService.logout();
+          navigate("/login");
+          return;
+        }
+        
+        // 3. Jika token valid, fetch semua data yang diperlukan
+        fetchData();
+      } catch (error) {
+        console.error('❌ Error verifying token:', error);
+        // Error saat verify = logout
+        navigate("/login");
+      }
+    };
+
+    // Jalankan verification saat component mount
+    verifyAndFetch();
   }, [navigate]);
 
-  // ============ STATE INITIALIZATION ============
+  // ═══════════════════════════════════════════════════════════════
+  // 📊 STATE INITIALIZATION - Semua state untuk admin dashboard
+  // ═══════════════════════════════════════════════════════════════
+  
+  // UI State - Tab yang sedang aktif
   const [currentTab, setCurrentTab] = useState("dashboard");
-  const [packageList, setPackageList] = useState([]);
-  const [categoryList, setCategoryList] = useState([]);
-  const [testimonialList, setTestimonialList] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState(null);
+  
+  // Data State - Data dari API yang ditampilkan di UI
+  const [packageList, setPackageList] = useState([]);         // Semua packages
+  const [categoryList, setCategoryList] = useState([]);       // Semua categories
+  const [testimonialList, setTestimonialList] = useState([]); // Semua testimonials
+  const [galleryList, setGalleryList] = useState([]);         // Semua gallery items
+  
+  // Form State - Packages form
+  const [showForm, setShowForm] = useState(false);            // Show/hide form
+  const [editingId, setEditingId] = useState(null);           // ID yang sedang di-edit (null = create baru)
+  const [searchQuery, setSearchQuery] = useState("");         // Search filter
+  
+  // Form State - Categories form
   const [showCatForm, setShowCatForm] = useState(false);
   const [editingCatId, setEditingCatId] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Form State - Testimonials form
   const [showTestForm, setShowTestForm] = useState(false);
   const [editingTestId, setEditingTestId] = useState(null);
   const [searchTestQuery, setSearchTestQuery] = useState("");
+  
+  // Form State - Gallery form
   const [showGalleryForm, setShowGalleryForm] = useState(false);
   const [editingGalleryId, setEditingGalleryId] = useState(null);
   const [searchGalleryQuery, setSearchGalleryQuery] = useState("");
 
+  // Form Data State - Package form data
   const [formData, setFormData] = useState({
-    title: "", category: "", price: "", durasi: "", description: "", image: "", highlight_utama: "",
+    title: "",                // Nama package
+    category: "",             // Category ID
+    price: "",                // Harga
+    durasi: "",               // Durasi perjalanan
+    description: "",          // Deskripsi
+    image: "",                // URL gambar
+    highlight_utama: "",      // Highlight utama
   });
 
-  const [catFormData, setCatFormData] = useState({ name: "", slug: "" });
+  // Form Data State - Categories form data
+  const [catFormData, setCatFormData] = useState({ 
+    name: "",  // Nama category
+    slug: ""   // Slug untuk URL
+  });
+  
+  // Form Data State - Testimonials form data
   const [testFormData, setTestFormData] = useState({
-    name: "", title: "", image: "", package: "", rating: 5, text: ""
+    name: "",          // Nama orang yang testimonial
+    title: "",         // Title/posisi
+    image: "",         // Foto
+    package: "",       // Package yang di-review
+    rating: 5,         // Rating 1-5
+    text: ""           // Teks testimonial
   });
+  
+  // Form Data State - Gallery form data
   const [galleryFormData, setGalleryFormData] = useState({
-    title: "", category: "", image: "", description: ""
+    title: "",         // Judul foto
+    category: "",      // Category foto
+    image: "",         // URL gambar
+    description: ""    // Deskripsi
   });
 
-  // ============ GALLERY STATE SETUP ============
-  const galleryItems = [
-    { id: 1, title: "Raja Ampat Beach", category: "Destinasi", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80", description: "Pantai indah dengan terumbu karang yang memukau" },
-    { id: 2, title: "Luxury Resort", category: "Hotel", image: "https://images.unsplash.com/photo-1551632786-fc43ea25ad16?w=400&q=80", description: "Resort bintang lima dengan fasilitas lengkap" },
-    { id: 3, title: "Diving Adventure", category: "Aktivitas", image: "https://images.unsplash.com/photo-1544551763-92ab472cad5d?w=400&q=80", description: "Petualangan menyelam di kedalaman laut" },
-    { id: 4, title: "Traditional Food", category: "Kuliner", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80", description: "Makanan tradisional Indonesia yang lezat" },
-    { id: 5, title: "Mount Bromo Sunrise", category: "Pemandangan", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80", description: "Matahari terbit di puncak gunung Bromo" },
-    { id: 6, title: "Waterfall Trek", category: "Aktivitas", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400&q=80", description: "Trekking menuju air terjun tersembunyi" }
-  ];
+  // ═══════════════════════════════════════════════════════════════
+  // 🎯 GET CATEGORY NAME - Map categoryId ke category name
+  // ═══════════════════════════════════════════════════════════════
+  // MASALAH: Backend return categoryId (angka), tapi UI butuh category name (string)
+  // SOLUSI: Function ini map ID ke nama dengan mencari di categoryList
+  //
+  // FLOW:
+  // 1. Package dari backend: { id: 1, name: "Bali", categoryId: 2 }
+  // 2. Category dari backend: { id: 2, name: "Yogyakarta" }
+  // 3. Function ini: categoryId 2 → "Yogyakarta"
+  // 4. PackagesTab show: "Yogyakarta" di table
+  
+  const getCategoryName = (categoryId, categoryList) => {
+    // 1. VALIDASI - Cek input tidak null/undefined
+    if (!categoryId || !categoryList || categoryList.length === 0) {
+      console.warn('⚠️ getCategoryName: Missing categoryId or categoryList');
+      return 'Uncategorized'; // Default jika data tidak lengkap
+    }
+    
+    // 2. CONVERT KE NUMBER - categoryId bisa string atau number
+    //    Database bisa return categoryId sebagai "2" (string) atau 2 (number)
+    //    Convert ke number untuk consistent comparison
+    const idNum = Number(categoryId);
+    console.log(
+      `🔍 getCategoryName: Looking for categoryId=${idNum} in`, 
+      categoryList.map(c => ({ id: c.id, name: c.name }))
+    );
+    
+    // 3. FIND - Cari category dengan ID yang match
+    //    categoryList.find() return category object atau undefined
+    const found = categoryList.find(cat => {
+      // Convert category ID juga ke number untuk matching
+      const catIdNum = Number(cat.id);
+      return catIdNum === idNum;
+    });
+    
+    // 4. LOG RESULT - Debug logging
+    console.log(
+      `📌 getCategoryName result: "${found?.name || 'Uncategorized'}" (found: ${found ? 'YES' : 'NO'})`
+    );
+    
+    // 5. RETURN - Return category name atau 'Uncategorized' jika tidak ketemu
+    return found?.name || 'Uncategorized';
+  };
 
-  const [galleryList, setGalleryList] = useState(galleryItems);
-
-  // ============ FETCH DATA FUNCTION (SEBELUM useEffect) ============
+  // ═══════════════════════════════════════════════════════════════
+  // 🔄 FETCH DATA - Ambil semua data dari backend APIs
+  // ═══════════════════════════════════════════════════════════════
+  // Function ini coordinate semua API calls dan update state
+  // FLOW:
+  // 1. Fetch categories DULU (diprioritaskan)
+  // 2. Fetch packages
+  // 3. Map categoryId → category name (di Admin component, bukan di service)
+  // 4. Fetch testimonials & gallery paralel dengan Promise.all()
+  // 5. Set state dengan data yang sudah clean
+  
   const fetchData = async () => {
     try {
       console.log('🔄 Fetching data from APIs...');
-      const [pkgs, cats, tests] = await Promise.all([
-        packageService.getAll(),
-        categoriesService.getAll(),
-        testimonialsService.getAll()
+
+      // ─────────────────────────────────────────────────────────────
+      // STEP 1: Fetch Categories (PRIORITAS TINGGI)
+      // ─────────────────────────────────────────────────────────────
+      // Categories di-fetch dulu karena digunakan untuk mapping package categories
+      const cats = await categoriesService.getAll();
+      console.log('✅ Categories loaded:', cats);
+      console.log(
+        '📊 Categories struktur:', 
+        cats.map(c => ({ id: c.id, idType: typeof c.id, name: c.name }))
+      );
+
+      // ─────────────────────────────────────────────────────────────
+      // STEP 2: Fetch Packages
+      // ─────────────────────────────────────────────────────────────
+      // Package berisi categoryId (angka), bukan category name
+      const pkgsRaw = await packageService.getAll();
+      console.log('📦 Packages raw:', pkgsRaw);
+      
+      // Debug: Lihat struktur package pertama
+      if (pkgsRaw.length > 0) {
+        const firstPkg = pkgsRaw[0];
+        console.log('🔍 FIRST PACKAGE DEBUG:', {
+          id: firstPkg.id,
+          name: firstPkg.name,
+          categoryId: firstPkg.categoryId,
+          categoryIdType: typeof firstPkg.categoryId,
+          allFields: Object.keys(firstPkg)
+        });
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // STEP 3: MAPPING - categoryId → category name
+      // ─────────────────────────────────────────────────────────────
+      // Transformasi packages: tambah field 'category' dengan nama dari categoryId
+      const pkgsWithCategory = pkgsRaw.map((pkg, idx) => {
+        // Gunakan getCategoryName() untuk convert categoryId ke nama
+        const categoryName = getCategoryName(pkg.categoryId, cats);
+        
+        // Debug untuk package pertama
+        if (idx === 0) {
+          console.log(`🔍 MAPPING DEBUG - Package #1:`, {
+            categoryId: pkg.categoryId,
+            categoryList: cats,
+            foundCategory: cats.find(c => c.id === pkg.categoryId),
+            resultName: categoryName
+          });
+        }
+        
+        // Return package dengan category name ditambahkan
+        return {
+          ...pkg,                      // Spread: ambil semua field dari pkg
+          category: categoryName        // Override: tambah field category dengan nama
+        };
+      });
+      
+      console.log('✅ Packages with category:', pkgsWithCategory);
+
+      // ─────────────────────────────────────────────────────────────
+      // STEP 4: Fetch Testimonials & Gallery PARALEL
+      // ─────────────────────────────────────────────────────────────
+      // Promise.all() = fetch 2 API calls secara concurrent (lebih cepat)
+      // Menunggu kedua request selesai baru lanjut
+      const [tests, gal] = await Promise.all([
+        testimonialsService.getAll(),
+        galleryService.getAll()
       ]);
 
       console.log('✅ Data fetched successfully');
-      console.log('📦 Packages:', pkgs);
+      console.log('📦 Packages:', pkgsWithCategory);
       console.log('📂 Categories:', cats);
       console.log('💬 Testimonials:', tests);
+      console.log('🖼️ Gallery Items:', gal);
 
-      setPackageList(pkgs || []);
+      // ─────────────────────────────────────────────────────────────
+      // STEP 5: Update State dengan data yang sudah clean
+      // ─────────────────────────────────────────────────────────────
+      // State ini akan di-trigger re-render dan component akan update dengan data baru
+      setPackageList(pkgsWithCategory);  // Gunakan yang sudah dimapping (bukan pkgsRaw)!
       setCategoryList(cats || []);
       setTestimonialList(tests || []);
+      setGalleryList(gal || []);
+
     } catch (err) {
+      // ─────────────────────────────────────────────────────────────
+      // ERROR HANDLING - Fallback ke data lokal jika API gagal
+      // ─────────────────────────────────────────────────────────────
       console.error("❌ Gagal memuat data:", err);
-      // Fallback ke data lokal jika API gagal
+      
+      // Jika API call gagal, gunakan data lokal dari imports
+      // Data lokal sudah ada di atas (dari data/packages.js, data/testimonials.js)
       setPackageList(packages);
       setCategoryList(packageCategories.filter(c => c.slug !== "semua"));
       setTestimonialList(testimonials);
@@ -234,30 +425,40 @@ export default function Admin() {
   );
 
   // ============ GALLERY HANDLERS ============
+  // Filter gallery berdasarkan search query
   const filteredGallery = galleryList.filter(item =>
     item.title.toLowerCase().includes(searchGalleryQuery.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchGalleryQuery.toLowerCase())
+    item.category.toLowerCase().includes(searchGalleryQuery.toLowerCase()) ||
+    item.description.toLowerCase().includes(searchGalleryQuery.toLowerCase())
   );
 
-  const handleGalleryInputChange = (e) => {
-    const { name, value } = e.target;
-    setGalleryFormData(prev => ({ ...prev, [name]: value }));
-  };
 
-  const handleGallerySubmit = (e) => {
+
+  // ============ GALLERY HANDLERS ============
+  const handleGallerySubmit = async (e) => {
     e.preventDefault();
-    if (editingGalleryId) {
-      setGalleryList(prev => prev.map(item => item.id === editingGalleryId ? { ...item, ...galleryFormData } : item));
+    try {
+      if (editingGalleryId) {
+        // UPDATE
+        await galleryService.update(editingGalleryId, galleryFormData);
+        console.log('✅ Gallery updated successfully');
+      } else {
+        // CREATE
+        await galleryService.create(galleryFormData);
+        console.log('✅ Gallery created successfully');
+      }
+
+      // Refresh data
+      fetchData();
+
+      // Reset form
+      setGalleryFormData({ title: "", category: "", image: "", description: "" });
+      setShowGalleryForm(false);
       setEditingGalleryId(null);
-    } else {
-      const newItem = {
-        id: Math.max(...galleryList.map(i => i.id), 0) + 1,
-        ...galleryFormData
-      };
-      setGalleryList(prev => [...prev, newItem]);
+    } catch (error) {
+      console.error('❌ Error:', error);
+      alert('Gagal menyimpan gallery');
     }
-    setGalleryFormData({ title: "", category: "", image: "", description: "" });
-    setShowGalleryForm(false);
   };
 
   const handleGalleryEdit = (item) => {
@@ -271,21 +472,31 @@ export default function Admin() {
     setShowGalleryForm(true);
   };
 
-  const handleGalleryDelete = (id) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus media ini?")) {
-      setGalleryList(prev => prev.filter(item => item.id !== id));
+  const handleGalleryDelete = async (id) => {
+    if (window.confirm('Apakah Anda yakin ingin menghapus gallery ini?')) {
+      try {
+        await galleryService.delete(id);
+        console.log('✅ Gallery deleted successfully');
+        fetchData(); // Refresh data
+      } catch (error) {
+        console.error('❌ Error:', error);
+        alert('Gagal menghapus gallery');
+      }
     }
   };
 
-  const handleGalleryCancel = () => {
-    setShowGalleryForm(false);
-    setEditingGalleryId(null);
-    setGalleryFormData({ title: "", category: "", image: "", description: "" });
+  const handleGalleryInputChange = (e) => {
+    const { name, value } = e.target;
+    setGalleryFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  const handleTestInputChange = (e) => {
-    const { name, value } = e.target;
-    setTestFormData(prev => ({ ...prev, [name]: value }));
+  const handleGalleryCancel = () => {
+    setGalleryFormData({ title: "", category: "", image: "", description: "" });
+    setShowGalleryForm(false);
+    setEditingGalleryId(null);
   };
 
   const handleTestSubmit = async (e) => {

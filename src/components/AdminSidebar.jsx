@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.jpeg";
 import { authService } from "../services/authService";
@@ -14,7 +14,8 @@ import {
   HiLogout,
   HiChevronRight,
   HiTag,
-  HiTicket
+  HiTicket,
+  HiClock
 } from "react-icons/hi";
 
 
@@ -22,8 +23,28 @@ import {
 export default function AdminSidebar({ currentTab, onTabChange }) {
 
   const navigate = useNavigate();
+  const [sessionTime, setSessionTime] = useState(null);
+
+  // Update session time setiap menit
+  useEffect(() => {
+    const updateSessionTime = () => {
+      const remaining = authService.getSessionTimeRemaining();
+      setSessionTime(remaining);
+
+      // Warn jika kurang dari 5 menit
+      if (remaining && remaining.hours === 0 && remaining.minutes < 5) {
+        console.warn('⏰ Session akan expired dalam', remaining.minutes, 'menit');
+      }
+    };
+
+    updateSessionTime();
+    const interval = setInterval(updateSessionTime, 60000); // update setiap 1 menit
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = async () => {
+    console.log('🚪 Logging out...');
     await authService.logout();
     navigate('/login');
   };
@@ -55,8 +76,12 @@ export default function AdminSidebar({ currentTab, onTabChange }) {
       id: "gallery",
       label: "Galeri Media",
       icon: HiPhotograph,
-    }
+    },
   ];
+
+  const user = authService.getUserData();
+  const userName = user?.name;
+  const userEmail = user?.email;
 
   return (
     <>
@@ -121,8 +146,8 @@ export default function AdminSidebar({ currentTab, onTabChange }) {
                   if (window.innerWidth < 1024) setIsOpen(false);
                 }}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
-                    ? "bg-indigo-50 text-indigo-600 shadow-sm shadow-indigo-500/5"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                  ? "bg-indigo-50 text-indigo-600 shadow-sm shadow-indigo-500/5"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                   }`}
               >
                 <div className="flex items-center gap-3.5">
@@ -139,19 +164,31 @@ export default function AdminSidebar({ currentTab, onTabChange }) {
 
         {/* User & Logout */}
         <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+          {/* Session Timer Display */}
+          {sessionTime && (
+            <div className="flex items-center gap-2 px-3 py-2 mb-3 bg-blue-50 rounded-lg border border-blue-100">
+              <HiClock className="w-4 h-4 text-blue-600" />
+              <span className="text-xs font-semibold text-blue-900">
+                {sessionTime.hours > 0
+                  ? `${sessionTime.hours}h ${sessionTime.minutes}m sisa`
+                  : `${sessionTime.minutes}m sisa`
+                }
+              </span>
+            </div>
+          )}
           <div className="flex items-center gap-3 p-2 mb-3">
             <img
-              src="https://ui-avatars.com/api/?name=Admin+Harmoni&background=f1f5f9&color=6366f1&bold=true"
+              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=f1f5f9&color=6366f1&bold=true`}
               alt="Avatar"
               className="w-9 h-9 rounded-lg border border-slate-200"
             />
             <div className="min-w-0">
-              <p className="text-sm font-bold text-slate-900 truncate">Admin Harmoni</p>
-              <p className="text-[10px] text-slate-400 font-medium">Administrator</p>
+              <p className="text-sm font-bold text-slate-900 truncate">{userName}</p>
+              <p className="text-[10px] text-slate-400 font-medium truncate">{userEmail}</p>
             </div>
           </div>
 
-          <button 
+          <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all font-bold text-xs"
           >
