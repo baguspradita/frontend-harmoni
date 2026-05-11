@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { HiX } from "react-icons/hi";
 import { galleryService } from "../services/galleryService";
+import WaveDivider from "../components/WaveDivider";  // ← IMPORT INI
 
 export default function Gallery() {
   // ========== STATE DECLARATIONS ==========
@@ -56,8 +57,12 @@ export default function Gallery() {
           backgroundRepeat: 'no-repeat',
           minHeight: '400px',
         }}
-        className="py-8xl"
+        className="py-8xl relative"
       >
+        {/* 🌊 WAVE #1 - Dalam Header, di Bottom 🌊 */}
+        <div className="absolute bottom-0 left-0 w-full">
+          <WaveDivider fill="white" />
+        </div>
       </motion.section>
 
       {/* Text Section */}
@@ -68,7 +73,7 @@ export default function Gallery() {
         className="bg-white py-3xl"
       >
         <div className="max-w-7xl mx-auto px-lg text-center">
-          <h1 className="font-poppins font-bold text-4xl sm:text-5xl md:text-6xl mb-xl text-dark">
+          <h1 className="font-poppins font-bold text-4xl sm:text-5xl md:text-6xl mb-xl text-primary">
             Galeri Destinasi
           </h1>
           <p className="font-inter text-lg text-gray-600 max-w-2xl mx-auto">
@@ -78,7 +83,7 @@ export default function Gallery() {
       </motion.section>
 
       {/* Gallery Section */}
-      <section className="py-4xl">
+      <section className="py-4xl bg-white relative">
         <div className="max-w-7xl mx-auto px-lg">
           {/* CONDITIONAL RENDERING */}
           {loading ? (
@@ -144,6 +149,10 @@ export default function Gallery() {
               ))}
             </motion.div>
           )}
+        </div>
+        {/* 🌊 WAVE #2 - Dalam Gallery, di Bottom (OPTIONAL - jika ada section berikutnya) 🌊 */}
+        <div className="absolute bottom-0 left-0 w-full">
+          <WaveDivider fill="rgb(245, 245, 245)" />
         </div>
       </section>
 

@@ -42,7 +42,7 @@ export default function Admin() {
         // 1. Verify token dengan backend
         //    Ini adalah security check untuk ensure user login
         const isValid = await authService.verifyToken();
-        
+
         // 2. Jika token invalid, logout dan redirect ke login
         if (!isValid) {
           console.log('⚠️ Token tidak valid, logout...');
@@ -50,7 +50,7 @@ export default function Admin() {
           navigate("/login");
           return;
         }
-        
+
         // 3. Jika token valid, fetch semua data yang diperlukan
         fetchData();
       } catch (error) {
@@ -67,30 +67,30 @@ export default function Admin() {
   // ═══════════════════════════════════════════════════════════════
   // 📊 STATE INITIALIZATION - Semua state untuk admin dashboard
   // ═══════════════════════════════════════════════════════════════
-  
+
   // UI State - Tab yang sedang aktif
   const [currentTab, setCurrentTab] = useState("dashboard");
-  
+
   // Data State - Data dari API yang ditampilkan di UI
   const [packageList, setPackageList] = useState([]);         // Semua packages
   const [categoryList, setCategoryList] = useState([]);       // Semua categories
   const [testimonialList, setTestimonialList] = useState([]); // Semua testimonials
   const [galleryList, setGalleryList] = useState([]);         // Semua gallery items
-  
+
   // Form State - Packages form
   const [showForm, setShowForm] = useState(false);            // Show/hide form
   const [editingId, setEditingId] = useState(null);           // ID yang sedang di-edit (null = create baru)
   const [searchQuery, setSearchQuery] = useState("");         // Search filter
-  
+
   // Form State - Categories form
   const [showCatForm, setShowCatForm] = useState(false);
   const [editingCatId, setEditingCatId] = useState(null);
-  
+
   // Form State - Testimonials form
   const [showTestForm, setShowTestForm] = useState(false);
   const [editingTestId, setEditingTestId] = useState(null);
   const [searchTestQuery, setSearchTestQuery] = useState("");
-  
+
   // Form State - Gallery form
   const [showGalleryForm, setShowGalleryForm] = useState(false);
   const [editingGalleryId, setEditingGalleryId] = useState(null);
@@ -108,11 +108,11 @@ export default function Admin() {
   });
 
   // Form Data State - Categories form data
-  const [catFormData, setCatFormData] = useState({ 
+  const [catFormData, setCatFormData] = useState({
     name: "",  // Nama category
     slug: ""   // Slug untuk URL
   });
-  
+
   // Form Data State - Testimonials form data
   const [testFormData, setTestFormData] = useState({
     name: "",          // Nama orang yang testimonial
@@ -122,7 +122,7 @@ export default function Admin() {
     rating: 5,         // Rating 1-5
     text: ""           // Teks testimonial
   });
-  
+
   // Form Data State - Gallery form data
   const [galleryFormData, setGalleryFormData] = useState({
     title: "",         // Judul foto
@@ -142,23 +142,23 @@ export default function Admin() {
   // 2. Category dari backend: { id: 2, name: "Yogyakarta" }
   // 3. Function ini: categoryId 2 → "Yogyakarta"
   // 4. PackagesTab show: "Yogyakarta" di table
-  
+
   const getCategoryName = (categoryId, categoryList) => {
     // 1. VALIDASI - Cek input tidak null/undefined
     if (!categoryId || !categoryList || categoryList.length === 0) {
       console.warn('⚠️ getCategoryName: Missing categoryId or categoryList');
       return 'Uncategorized'; // Default jika data tidak lengkap
     }
-    
+
     // 2. CONVERT KE NUMBER - categoryId bisa string atau number
     //    Database bisa return categoryId sebagai "2" (string) atau 2 (number)
     //    Convert ke number untuk consistent comparison
     const idNum = Number(categoryId);
     console.log(
-      `🔍 getCategoryName: Looking for categoryId=${idNum} in`, 
+      `🔍 getCategoryName: Looking for categoryId=${idNum} in`,
       categoryList.map(c => ({ id: c.id, name: c.name }))
     );
-    
+
     // 3. FIND - Cari category dengan ID yang match
     //    categoryList.find() return category object atau undefined
     const found = categoryList.find(cat => {
@@ -166,12 +166,12 @@ export default function Admin() {
       const catIdNum = Number(cat.id);
       return catIdNum === idNum;
     });
-    
+
     // 4. LOG RESULT - Debug logging
     console.log(
       `📌 getCategoryName result: "${found?.name || 'Uncategorized'}" (found: ${found ? 'YES' : 'NO'})`
     );
-    
+
     // 5. RETURN - Return category name atau 'Uncategorized' jika tidak ketemu
     return found?.name || 'Uncategorized';
   };
@@ -186,7 +186,7 @@ export default function Admin() {
   // 3. Map categoryId → category name (di Admin component, bukan di service)
   // 4. Fetch testimonials & gallery paralel dengan Promise.all()
   // 5. Set state dengan data yang sudah clean
-  
+
   const fetchData = async () => {
     try {
       console.log('🔄 Fetching data from APIs...');
@@ -198,7 +198,7 @@ export default function Admin() {
       const cats = await categoriesService.getAll();
       console.log('✅ Categories loaded:', cats);
       console.log(
-        '📊 Categories struktur:', 
+        '📊 Categories struktur:',
         cats.map(c => ({ id: c.id, idType: typeof c.id, name: c.name }))
       );
 
@@ -208,7 +208,7 @@ export default function Admin() {
       // Package berisi categoryId (angka), bukan category name
       const pkgsRaw = await packageService.getAll();
       console.log('📦 Packages raw:', pkgsRaw);
-      
+
       // Debug: Lihat struktur package pertama
       if (pkgsRaw.length > 0) {
         const firstPkg = pkgsRaw[0];
@@ -228,7 +228,7 @@ export default function Admin() {
       const pkgsWithCategory = pkgsRaw.map((pkg, idx) => {
         // Gunakan getCategoryName() untuk convert categoryId ke nama
         const categoryName = getCategoryName(pkg.categoryId, cats);
-        
+
         // Debug untuk package pertama
         if (idx === 0) {
           console.log(`🔍 MAPPING DEBUG - Package #1:`, {
@@ -238,14 +238,14 @@ export default function Admin() {
             resultName: categoryName
           });
         }
-        
+
         // Return package dengan category name ditambahkan
         return {
           ...pkg,                      // Spread: ambil semua field dari pkg
           category: categoryName        // Override: tambah field category dengan nama
         };
       });
-      
+
       console.log('✅ Packages with category:', pkgsWithCategory);
 
       // ─────────────────────────────────────────────────────────────
@@ -278,7 +278,7 @@ export default function Admin() {
       // ERROR HANDLING - Fallback ke data lokal jika API gagal
       // ─────────────────────────────────────────────────────────────
       console.error("❌ Gagal memuat data:", err);
-      
+
       // Jika API call gagal, gunakan data lokal dari imports
       // Data lokal sudah ada di atas (dari data/packages.js, data/testimonials.js)
       setPackageList(packages);
@@ -305,6 +305,16 @@ export default function Admin() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  // ═══════════════════════════════════════════════════════════════
+  // 🎯 HANDLE INPUT CHANGE - TESTIMONIALS
+  // ═══════════════════════════════════════════════════════════════
+  const handleTestInputChange = (e) => {
+    const { name, value } = e.target;
+    setTestFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

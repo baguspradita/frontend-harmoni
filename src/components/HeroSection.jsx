@@ -25,7 +25,7 @@ export default function HeroSection() {
     };
 
     return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <section className="relative bg-gradient-to-b from-blue-600 to-blue-700 min-h-screen flex items-center justify-center overflow-hidden">
             {/* Background Image with Overlay */}
             <div className="absolute inset-0 z-0">
                 <img
@@ -36,20 +36,13 @@ export default function HeroSection() {
                 <div className="absolute inset-0 bg-black/40"></div>
             </div>
 
-            {/* Content */}
+            {/* Content - TANPA SVG */}
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
                 className="relative z-10 max-w-4xl mx-auto px-lg text-white text-center"
             >
-                {/* <motion.p
-                    variants={itemVariants}
-                    className="font-inter text-lg font-semibold text-secondary mb-lg"
-                >
-                    Jelajahi Keindahan Indonesia
-                </motion.p> */}
-
                 <motion.h1
                     variants={itemVariants}
                     className="font-poppins font-bold text-5xl sm:text-6xl md:text-7xl leading-tight mb-xl text-primary"
@@ -113,6 +106,19 @@ export default function HeroSection() {
                     />
                 </svg>
             </motion.div>
+
+            {/* ⭐ WAVE SVG - PINDAH KE SINI (Posisi Section Level) */}
+            <svg
+                className="absolute bottom-0 left-0 w-full"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+                style={{ display: 'block', lineHeight: 0 }}
+            >
+                <path
+                    d="M0,50 Q300,10 600,50 T1200,50 L1200,150 L0,150 Z"
+                    fill="white"
+                />
+            </svg>
         </section>
     );
 }

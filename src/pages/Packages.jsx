@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SectionTitle from "../components/SectionTitle";
 import PackageCard from "../components/PackageCard";
+import WaveDivider from "../components/WaveDivider";
 import { packageService } from "../services/packageService";
 import { categoriesService } from "../services/categoriesService";
 
@@ -21,9 +22,8 @@ export default function Packages() {
           packageService.getAll(),
           categoriesService.getAll()
         ]);
-        
+
         setPackageList(pkgs);
-        // Gabungkan kategori "Semua" dengan kategori dari API
         setCategoryList([{ id: 'all', name: "Semua", slug: "semua" }, ...cats]);
         setIsLoading(false);
       } catch (err) {
@@ -44,7 +44,7 @@ export default function Packages() {
   return (
     <div className="min-h-screen bg-transparent">
 
-      {/* Banner dengan Logo - Full */}
+      {/* ========== BANNER ========== */}
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -55,11 +55,15 @@ export default function Packages() {
           backgroundRepeat: 'no-repeat',
           minHeight: '400px',
         }}
-        className="py-8xl"
+        className="py-8xl relative"
       >
+        {/* 🌊 WAVE #1 - Dalam Banner, di Bottom 🌊 */}
+        <div className="absolute bottom-0 left-0 w-full">
+          <WaveDivider fill="white" />
+        </div>
       </motion.section>
 
-      {/* Text Section */}
+      {/* ========== TEXT SECTION ========== */}
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -77,8 +81,8 @@ export default function Packages() {
         </div>
       </motion.section>
 
-      {/* Main Content */}
-      <section className="py-x1 bg-white">
+      {/* ========== MAIN CONTENT ========== */}
+      <section className="py-x1 bg-white relative">
         <div className="max-w-7xl mx-auto px-lg">
           {/* Category Filter */}
           <motion.div
@@ -113,7 +117,7 @@ export default function Packages() {
           {error && !isLoading && (
             <div className="text-center py-3xl">
               <p className="font-inter text-red-500 text-lg mb-4">{error}</p>
-              <button 
+              <button
                 onClick={() => window.location.reload()}
                 className="px-6 py-2 bg-primary text-white rounded-lg font-bold"
               >
@@ -158,9 +162,11 @@ export default function Packages() {
             </motion.div>
           )}
         </div>
+
+       
       </section>
 
-      {/* CTA Section */}
+      {/* ========== CTA SECTION ========== */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}

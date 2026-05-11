@@ -1,8 +1,9 @@
 import { authService } from '../services/authService';
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { HiMail, HiLockClosed, HiEye, HiEyeOff } from "react-icons/hi";
+import { HiMail, HiLockClosed, HiEye, HiEyeOff, HiGlobeAlt } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
+import logoImg from '../assets/logo.jpeg';
 
 
 export default function Login() {
@@ -14,7 +15,6 @@ export default function Login() {
   const [error, setError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Ambil email yang tersimpan saat halaman dimuat
   useEffect(() => {
     const rememberedEmail = localStorage.getItem("rememberedEmail");
     if (rememberedEmail) {
@@ -29,13 +29,11 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Panggil API login
       const response = await authService.login({
         email: email.trim(),
         password
       });
 
-      // Jika berhasil, simpan token
       if (response.token) {
         localStorage.setItem('authToken', response.token);
         localStorage.setItem('userEmail', email);
@@ -51,11 +49,9 @@ export default function Login() {
           localStorage.removeItem('rememberedEmail');
         }
 
-        // Redirect ke admin
         navigate('/admin');
       }
     } catch (err) {
-      // Tampilkan error
       const errorMessage = typeof err === 'string'
         ? err
         : err.message || 'Login gagal. Silakan coba lagi.';
@@ -68,218 +64,292 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
-      {/* Background Elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden">
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-md relative z-10"
+        className="w-full max-w-4xl grid md:grid-cols-2 gap-8 items-center relative z-10"
       >
-        {/* Card Container */}
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
-          {/* Header Section */}
-          <div className="relative h-24 bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center overflow-hidden">
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute -top-20 -right-20 w-40 h-40 bg-white rounded-full"></div>
-              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-white rounded-full"></div>
-            </div>
+        {/* Left Side - Brand & Message */}
+        <motion.div
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="hidden md:flex flex-col justify-center"
+        >
+          <div className="mb-12">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ type: "spring", delay: 0.2 }}
-              className="relative text-center"
+              transition={{ delay: 0.4, type: "spring" }}
+              className="inline-flex items-center gap-3 mb-6"
             >
-              <h1 className="text-3xl font-outfit font-bold text-white">Harmoni</h1>
-              <p className="text-indigo-100 text-xs font-bold tracking-widest">Admin Dashboard</p>
+              <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                <img
+                  src={logoImg}
+                  alt="Harmoni Logo"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div>
+                <h1 className="text-3xl font-poppins font-bold text-gray-900">Harmoni</h1>
+                <p className="text-sm font-inter text-primary font-semibold">Travel & Tour</p>
+              </div>
             </motion.div>
-          </div>
 
-          {/* Form Section */}
-          <div className="p-8 md:p-10">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.5 }}
             >
-              <h2 className="text-2xl font-outfit font-bold text-slate-900 mb-2">Welcome Back</h2>
-              <p className="text-slate-500 text-sm mb-8">Masuk ke akun admin Anda untuk mengelola dashboard</p>
+              <h2 className="text-4xl font-poppins font-bold text-gray-900 mb-4 leading-tight">
+                Kelola Petualangan <br />
+                <span className="text-primary">Perjalanan Anda</span>
+              </h2>
+              <p className="text-gray-600 font-inter text-lg leading-relaxed mb-8">
+                Akses dashboard admin untuk mengelola paket wisata, destinasi, dan pengalaman pelanggan.
+              </p>
+
+              {/* Feature List */}
+              <div className="space-y-4">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="flex items-start gap-3"
+                >
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  </div>
+                  <div>
+                    <p className="font-inter font-semibold text-gray-900">Kelola Paket Wisata</p>
+                    <p className="text-sm text-gray-500">Tambah, edit, dan hapus paket perjalanan Anda</p>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.7 }}
+                  className="flex items-start gap-3"
+                >
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  </div>
+                  <div>
+                    <p className="font-inter font-semibold text-gray-900">Galeri Destinasi</p>
+                    <p className="text-sm text-gray-500">Tampilkan keindahan setiap lokasi wisata</p>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.8 }}
+                  className="flex items-start gap-3"
+                >
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  </div>
+                  <div>
+                    <p className="font-inter font-semibold text-gray-900">Testimoni Pelanggan</p>
+                    <p className="text-sm text-gray-500">Kelola ulasan dan pengalaman pengunjung</p>
+                  </div>
+                </motion.div>
+              </div>
             </motion.div>
+          </div>
+        </motion.div>
 
-            {/* Error Message */}
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg"
-              >
-                <p className="text-red-700 text-xs font-medium">{error}</p>
-              </motion.div>
-            )}
+        {/* Right Side - Login Form */}
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="w-full"
+        >
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            {/* Form Header */}
+            <div className="bg-gradient-to-r from-primary to-blue-700 px-8 py-6 text-center md:hidden">
+              <h1 className="text-2xl font-poppins font-bold text-white">Harmoni</h1>
+              <p className="text-blue-100 text-xs font-inter mt-1">Admin Dashboard</p>
+            </div>
 
-            <form onSubmit={handleLogin} className="space-y-5">
-              {/* Email Field */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">
-                  Email Address
-                </label>
-                <div className="relative group">
-                  <HiMail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@harmoni.com"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm font-medium text-slate-900 placeholder:text-slate-400"
-                    required
-                  />
-                </div>
-              </motion.div>
-
-              {/* Password Field */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">
-                  Password
-                </label>
-                <div className="relative group">
-                  <HiLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full pl-12 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm font-medium text-slate-900 placeholder:text-slate-400"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                  >
-                    {showPassword ? (
-                      <HiEyeOff className="w-5 h-5" />
-                    ) : (
-                      <HiEye className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-              </motion.div>
-
-              {/* Remember Me & Forgot Password */}
+            {/* Form Content */}
+            <div className="p-8">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                className="flex items-center justify-between text-sm"
+                transition={{ delay: 0.4 }}
               >
-                <label className="flex items-center gap-2 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <span className="text-slate-600 font-medium group-hover:text-slate-900 transition-colors">
-                    Remember me
-                  </span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => navigate("/forgot-password")}
-                  className="text-indigo-600 font-bold hover:text-indigo-700 transition-colors bg-none border-none cursor-pointer p-0"
-                >
-                  Forgot Password?
-                </button>
+                <h2 className="text-2xl font-poppins font-bold text-gray-900 mb-2">Masuk Akun Admin</h2>
+                <p className="text-gray-600 text-sm font-inter mb-6">Kelola pengalaman wisata Anda dari sini</p>
               </motion.div>
 
-              {/* Login Button */}
-              <motion.button
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                whileHover={{ scale: isLoading ? 1 : 1.02 }}
-                whileTap={{ scale: isLoading ? 1 : 0.98 }}
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed text-sm uppercase tracking-widest"
-              >
-                {isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Logging in...
-                  </span>
-                ) : (
-                  "Sign In"
-                )}
-              </motion.button>
+              {/* Error Message */}
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3"
+                >
+                  <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-red-600 font-bold text-xs">!</span>
+                  </div>
+                  <p className="text-red-700 text-sm font-inter">{error}</p>
+                </motion.div>
+              )}
+
+              <form onSubmit={handleLogin} className="space-y-5">
+                {/* Email Field */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <label className="block text-sm font-poppins font-semibold text-gray-900 mb-2.5">
+                    Email Address
+                  </label>
+                  <div className="relative group">
+                    <HiMail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="admin@harmoni.com"
+                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary font-inter text-gray-900 placeholder:text-gray-400 transition-all"
+                      required
+                    />
+                  </div>
+                </motion.div>
+
+                {/* Password Field */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <label className="block text-sm font-poppins font-semibold text-gray-900 mb-2.5">
+                    Password
+                  </label>
+                  <div className="relative group">
+                    <HiLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary font-inter text-gray-900 placeholder:text-gray-400 transition-all"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showPassword ? (
+                        <HiEyeOff className="w-5 h-5" />
+                      ) : (
+                        <HiEye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
+
+                {/* Remember Me & Forgot Password */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.7 }}
+                  className="flex items-center justify-between text-sm"
+                >
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 rounded border-gray-300 text-primary accent-primary cursor-pointer"
+                    />
+                    <span className="text-gray-700 font-inter group-hover:text-gray-900 transition-colors">Ingat saya</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/forgot-password")}
+                    className="text-primary font-inter font-semibold hover:text-blue-700 bg-none border-none cursor-pointer p-0"
+                  >
+                    Lupa password?
+                  </button>
+                </motion.div>
+
+                {/* Login Button */}
+                <motion.button
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                  whileHover={{ scale: isLoading ? 1 : 1.01 }}
+                  whileTap={{ scale: isLoading ? 1 : 0.99 }}
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-3 bg-primary text-white font-poppins font-bold rounded-xl hover:bg-blue-700 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed text-sm mt-2"
+                >
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Sedang memproses...
+                    </span>
+                  ) : (
+                    "Masuk ke Dashboard"
+                  )}
+                </motion.button>
+              </form>
 
               {/* Divider */}
-              <div className="relative py-4">
+              <div className="my-6 relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200"></div>
+                  <div className="w-full border-t border-gray-200"></div>
                 </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="px-2 bg-white text-slate-500">Demo Credentials</span>
+                <div className="relative flex justify-center">
+                  <span className="px-3 bg-white text-xs text-gray-500 font-inter">Demo Credentials</span>
                 </div>
               </div>
 
               {/* Demo Credentials */}
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
-                className="bg-slate-50 rounded-xl p-4 border border-slate-200"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9 }}
+                className="bg-primary/5 rounded-xl p-4 border border-primary/10"
               >
-                <p className="text-xs text-slate-600 mb-2">
-                  <span className="font-bold">Email:</span> admin@harmoni.com
-                </p>
-                <p className="text-xs text-slate-600">
-                  <span className="font-bold">Password:</span> admin123
-                </p>
+                <div className="flex items-start gap-3">
+                  <div className="w-1 h-1 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-700 font-inter">
+                      <span className="font-semibold text-gray-900">Email:</span> admin@harmoni.com
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 mt-2">
+                  <div className="w-1 h-1 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-700 font-inter">
+                      <span className="font-semibold text-gray-900">Password:</span> password
+                    </p>
+                  </div>
+                </div>
               </motion.div>
-            </form>
-          </div>
+            </div>
 
-          {/* Footer */}
-          <div className="px-8 md:px-10 py-6 bg-slate-50 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-600">
-              © 2024 Harmoni Travel. All rights reserved.
-            </p>
+            {/* Footer */}
+            <div className="px-8 py-4 bg-gray-50 border-t border-gray-100 text-center">
+              <p className="text-xs text-gray-600 font-inter">
+                © 2024 Harmoni Travel & Tour. Semua hak dilindungi.
+              </p>
+            </div>
           </div>
-        </div>
+        </motion.div>
       </motion.div>
-
-      {/* CSS untuk animasi blob */}
-      <style>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-      `}</style>
     </div>
   );
 }
