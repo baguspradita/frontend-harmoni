@@ -34,9 +34,18 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // 3. Log request untuk debugging (lihat di browser console)
-    //    Membantu tracking apa requests yang dikirim
-    console.log('📤 Request:', config.method.toUpperCase(), config.baseURL + config.url);
+    // 3. Handle FormData (multipart/form-data)
+    //    Jika data adalah FormData, jangan set Content-Type
+    //    Biar browser auto-set Content-Type: multipart/form-data dengan boundary
+    if (config.data instanceof FormData) {
+      // DELETE Content-Type header untuk FormData
+      delete config.headers['Content-Type'];
+      console.log('📤 FormData Request:', config.method.toUpperCase(), config.baseURL + config.url, '(multipart/form-data)');
+    } else {
+      // Untuk data biasa, pastikan Content-Type adalah application/json
+      config.headers['Content-Type'] = 'application/json';
+      console.log('📤 JSON Request:', config.method.toUpperCase(), config.baseURL + config.url);
+    }
     
     // 4. Return config yang sudah di-update dengan token
     //    Tanpa ini, request tidak akan dikirim

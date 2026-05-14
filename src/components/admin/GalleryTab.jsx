@@ -18,6 +18,9 @@ export default function GalleryTab({
   setShowForm,
   editingId,
   formData,
+  imageFile,           // ← TAMBAH
+  imagePreview,        // ← TAMBAH
+  isSubmitting,       // ← TAMBAH
   handleInputChange,
   handleSubmit,
   handleEdit,
@@ -96,40 +99,31 @@ export default function GalleryTab({
                 />
               </div>
 
-              <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2 ml-1">
-                  Category
-                </label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all text-sm font-medium text-slate-900 shadow-sm"
-                >
-                  <option value="">Pilih Kategori</option>
-                  <option value="Destinasi">Destinasi</option>
-                  <option value="Hotel">Hotel</option>
-                  <option value="Aktivitas">Aktivitas</option>
-                  <option value="Kuliner">Kuliner</option>
-                  <option value="Pemandangan">Pemandangan</option>
-                </select>
-              </div>
+              
 
               <div className="md:col-span-2">
                 <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2 ml-1">
-                  Image URL
+                  📸 Select Image
                 </label>
                 <input
-                  type="url"
+                  type="file"
                   name="image"
-                  value={formData.image}
+                  accept="image/*"
                   onChange={handleInputChange}
                   required
                   className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-sm"
-                  placeholder="https://..."
                 />
               </div>
+
+              {/* Image Preview */}
+              {imagePreview && (
+                <div className="md:col-span-2 relative rounded-xl overflow-hidden border-2 border-indigo-300 bg-indigo-50">
+                  <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover" />
+                  <div className="absolute top-2 right-2 px-3 py-1 bg-indigo-600 text-white text-xs font-bold rounded-lg">
+                    Preview
+                  </div>
+                </div>
+              )}
 
               <div className="md:col-span-2">
                 <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2 ml-1">
@@ -155,9 +149,17 @@ export default function GalleryTab({
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold text-[11px] transition-all"
+                  disabled={isSubmitting}
+                  className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition-all text-sm font-bold flex items-center gap-2"
                 >
-                  {editingId ? "Update" : "Add"} Media
+                  {isSubmitting ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>{editingId ? 'Update' : 'Add'} Media</>
+                  )}
                 </button>
               </div>
             </form>
@@ -202,9 +204,6 @@ export default function GalleryTab({
               <div className="p-4">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-bold text-slate-900 text-sm line-clamp-1">{item.title}</h3>
-                  <span className="text-[10px] font-bold bg-indigo-100 text-indigo-600 px-2 py-1 rounded-md ml-2 flex-shrink-0">
-                    {item.category}
-                  </span>
                 </div>
                 <p className="text-[11px] text-slate-600 line-clamp-2">{item.description}</p>
               </div>

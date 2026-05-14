@@ -20,7 +20,7 @@ import { categoriesService } from "../services/categoriesService";
 import { testimonialsService } from "../services/testimonialsService";
 import { galleryService } from "../services/galleryService";
 import { authService } from "../services/authService";
-
+import DeleteConfirmModal from "../components/DeleteConfirmModal";
 // ═══════════════════════════════════════════════════════════════
 // 🏢 ADMIN COMPONENT - Main dashboard untuk admin
 // ═══════════════════════════════════════════════════════════════
@@ -103,9 +103,14 @@ export default function Admin() {
     price: "",                // Harga
     durasi: "",               // Durasi perjalanan
     description: "",          // Deskripsi
-    image: "",                // URL gambar
+    image: "",                // URL gambar (untuk display/edit)
     highlight_utama: "",      // Highlight utama
   });
+
+  // File State - Image file upload & preview
+  const [imageFile, setImageFile] = useState(null);          // File object dari input
+  const [imagePreview, setImagePreview] = useState("");     // Preview URL untuk display
+  const [isSubmitting, setIsSubmitting] = useState(false);   // Loading state saat submit
 
   // Form Data State - Categories form data
   const [catFormData, setCatFormData] = useState({
@@ -126,9 +131,22 @@ export default function Admin() {
   // Form Data State - Gallery form data
   const [galleryFormData, setGalleryFormData] = useState({
     title: "",         // Judul foto
-    category: "",      // Category foto
     image: "",         // URL gambar
     description: ""    // Deskripsi
+  });
+
+  // File State - Gallery image file upload & preview
+  const [galleryImageFile, setGalleryImageFile] = useState(null);      // File object dari input
+  const [galleryImagePreview, setGalleryImagePreview] = useState("");  // Preview URL untuk display
+  const [galleryIsSubmitting, setGalleryIsSubmitting] = useState(false); // Loading state saat submit
+
+  // Delete Modal State
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    type: null, // 'package', 'category', 'gallery', 'testimonial'
+    id: null,
+    name: null,
+    isDeleting: false
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -174,6 +192,40 @@ export default function Admin() {
 
     // 5. RETURN - Return category name atau 'Uncategorized' jika tidak ketemu
     return found?.name || 'Uncategorized';
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  // 🎯 GET CATEGORY ID - Map category name ke categoryId (REVERSE)
+  // ═══════════════════════════════════════════════════════════════
+  // MASALAH: Saat edit package, pkg.category berisi NAMA ("Yogyakarta")
+  //          tapi form butuh ID (2) untuk dikirim ke backend
+  // SOLUSI: Function ini reverse mapping nama → ID
+  //
+  // FLOW:
+  // 1. Package: { id: 1, name: "Bali", categoryId: 2, category: "Yogyakarta" }
+  // 2. handleEdit: category: "Yogyakarta" (dari pkg.category)
+  // 3. Function ini: "Yogyakarta" → 2 (cari di categoryList)
+  // 4. formData.category = 2 (ID untuk backend)
+  // 5. handleSubmit: categoryId: parseInt(2) = 2 ✅
+
+  const getCategoryId = (categoryName, categoryList) => {
+    // 1. VALIDASI - Cek input tidak null/undefined
+    if (!categoryName || !categoryList || categoryList.length === 0) {
+      console.warn('⚠️ getCategoryId: Missing categoryName or categoryList');
+      return ''; // Return empty string jika data tidak lengkap
+    }
+
+    // 2. FIND - Cari category dengan nama yang match
+    //    categoryList.find() return category object atau undefined
+    const found = categoryList.find(cat => cat.name === categoryName);
+
+    // 3. LOG RESULT - Debug logging
+    console.log(
+      `🔍 getCategoryId: "${categoryName}" → ID: ${found?.id || 'NOT FOUND'}`
+    );
+
+    // 4. RETURN - Return category ID atau empty string jika tidak ketemu
+    return found?.id || '';
   };
 
   // ═══════════════════════════════════════════════════════════════
@@ -302,8 +354,26 @@ export default function Admin() {
   );
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, type, value, files } = e.target;
+
+    // Handle file input untuk image
+    if (type === 'file' && files && files[0]) {
+      const file = files[0];
+      console.log('📸 File selected:', file.name, file.type, file.size);
+
+      // Set file object
+      setImageFile(file);
+
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+
+      // Log untuk debugging
+      console.log('✅ Image preview ready:', previewUrl);
+    } else {
+      // Handle text inputs
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   // ═══════════════════════════════════════════════════════════════
@@ -318,50 +388,110 @@ export default function Admin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Mapping frontend fields to backend fields
-    const payload = {
-      name: formData.title,
-      category: formData.category,
-      price: parseInt(formData.price),
-      durasi: formData.durasi,
-      description: formData.description,
-      image: formData.image,
-      highlight_utama: formData.highlight_utama
-    };
+    setIsSubmitting(true);
 
     try {
+      // ═══════════════════════════════════════════════════════════════
+      // 📸 CREATE FORMDATA - Kirim file + data sebagai multipart/form-data
+      // ═══════════════════════════════════════════════════════════════
+      const payload = new FormData();
+
+      // TEXT FIELDS
+      payload.append('name', formData.title);
+      payload.append('categoryId', parseInt(formData.category));  // ✅ Convert ke number
+      payload.append('price', parseInt(formData.price));
+      payload.append('durasi', formData.durasi);
+      payload.append('description', formData.description);
+      payload.append('highlight_utama', formData.highlight_utama);
+
+      // FILE FIELD - Hanya append jika ada file baru
+      if (imageFile) {
+        console.log('📤 Appending image file:', imageFile.name);
+        payload.append('image', imageFile);  // ✅ Field name: 'image'
+      } else if (formData.image && !editingId) {
+        // Untuk create baru, image field harus ada
+        console.warn('⚠️ No image file selected');
+      }
+
+      console.log('📋 Payload fields:');
+      for (let [key, value] of payload.entries()) {
+        if (key === 'image') {
+          console.log(`  - ${key}: File(${value.name})`);
+        } else {
+          console.log(`  - ${key}: ${value}`);
+        }
+      }
+
+      // API CALL
       if (editingId) {
+        console.log(`🔄 Updating package ${editingId}...`);
         await packageService.update(editingId, payload);
       } else {
+        console.log('🆕 Creating new package...');
         await packageService.create(payload);
       }
+
+      console.log('✅ Package saved successfully');
       fetchData(); // Refresh data
       handleCancel();
       setShowForm(false);
     } catch (err) {
+      console.error('❌ Error:', err);
       alert("Gagal menyimpan data: " + err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleEdit = (pkg) => {
+    // ✅ PENTING: Convert category name → ID menggunakan getCategoryId()
+    //    pkg.category = "Yogyakarta" (nama)
+    //    getCategoryId(...) = 2 (ID)
+    const categoryId = getCategoryId(pkg.category, categoryList);
+
     setFormData({
-      title: pkg.title || pkg.name, category: pkg.category, price: pkg.price,
-      durasi: pkg.durasi || pkg.duration, description: pkg.description, image: pkg.image,
+      title: pkg.title || pkg.name,
+      category: categoryId,  // ✅ Gunakan ID, bukan nama!
+      price: pkg.price,
+      durasi: pkg.durasi || pkg.duration,
+      description: pkg.description,
+      image: pkg.image,  // ✅ Store existing image URL untuk fallback
       highlight_utama: pkg.highlight_utama || (pkg.highlights ? pkg.highlights.join(', ') : ""),
     });
+
+    // 📸 Set preview dari existing image
+    if (pkg.image) {
+      setImagePreview(pkg.image);
+      console.log('📸 Existing image preview:', pkg.image);
+    }
+
+    // Reset file selection (user harus upload file baru jika ingin ganti)
+    setImageFile(null);
+
     setEditingId(pkg.id);
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus paket ini?")) {
-      try {
-        await packageService.delete(id);
-        fetchData();
-      } catch (err) {
-        alert("Gagal menghapus data: " + err);
-      }
+  const handleDelete = (id) => {
+    const pkg = packageList.find(p => p.id === id);
+    setDeleteModal({
+      isOpen: true,
+      type: 'package',
+      id,
+      name: pkg?.title || 'Unknown Package',
+      isDeleting: false
+    });
+  };
+
+  const confirmPackageDelete = async () => {
+    try {
+      setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+      await packageService.delete(deleteModal.id);
+      setDeleteModal({ isOpen: false, type: null, id: null, name: null, isDeleting: false });
+      fetchData();
+    } catch (err) {
+      alert("Gagal menghapus: " + err);
+      setDeleteModal(prev => ({ ...prev, isDeleting: false }));
     }
   };
 
@@ -369,6 +499,8 @@ export default function Admin() {
     setShowForm(false);
     setEditingId(null);
     setFormData({ title: "", category: "", price: "", durasi: "", description: "", image: "", highlight_utama: "" });
+    setImageFile(null);
+    setImagePreview("");
   };
 
   // ============ CATEGORY HANDLERS ============
@@ -415,16 +547,26 @@ export default function Admin() {
     setShowCatForm(true);
   };
 
-  const handleCatDelete = async (id) => {
-    if (window.confirm("Hapus kategori ini?")) {
-      try {
-        await categoriesService.delete(id);
-        console.log('✅ Category deleted successfully');
-        fetchData(); // Refresh data dari API
-      } catch (err) {
-        alert("❌ Gagal menghapus kategori: " + err);
-        console.error("Category delete error:", err);
-      }
+  const handleCatDelete = (id) => {
+    const cat = categoryList.find(c => c.id === id);
+    setDeleteModal({
+      isOpen: true,
+      type: 'category',
+      id,
+      name: cat?.name || 'Unknown Category',
+      isDeleting: false
+    });
+  };
+
+  const confirmCategoryDelete = async () => {
+    try {
+      setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+      await categoriesService.delete(deleteModal.id);
+      setDeleteModal({ isOpen: false, type: null, id: null, name: null, isDeleting: false });
+      fetchData();
+    } catch (err) {
+      alert("Gagal menghapus: " + err);
+      setDeleteModal(prev => ({ ...prev, isDeleting: false }));
     }
   };
 
@@ -447,66 +589,129 @@ export default function Admin() {
   // ============ GALLERY HANDLERS ============
   const handleGallerySubmit = async (e) => {
     e.preventDefault();
+    setGalleryIsSubmitting(true);
+
     try {
-      if (editingGalleryId) {
-        // UPDATE
-        await galleryService.update(editingGalleryId, galleryFormData);
-        console.log('✅ Gallery updated successfully');
-      } else {
-        // CREATE
-        await galleryService.create(galleryFormData);
-        console.log('✅ Gallery created successfully');
+      // ═══════════════════════════════════════════════════════════════
+      // 📸 CREATE FORMDATA - Kirim file + data sebagai multipart/form-data
+      // ═══════════════════════════════════════════════════════════════
+      const payload = new FormData();
+
+      // TEXT FIELDS
+      payload.append('title', galleryFormData.title);
+      payload.append('description', galleryFormData.description);
+
+      // FILE FIELD - Hanya append jika ada file baru
+      if (galleryImageFile) {
+        console.log('📤 Appending gallery image file:', galleryImageFile.name);
+        payload.append('image', galleryImageFile);  // ✅ Field name: 'image'
       }
 
-      // Refresh data
-      fetchData();
+      console.log('📋 Gallery Payload fields:');
+      for (let [key, value] of payload.entries()) {
+        if (key === 'image') {
+          console.log(`  - ${key}: File(${value.name})`);
+        } else {
+          console.log(`  - ${key}: ${value}`);
+        }
+      }
 
-      // Reset form
-      setGalleryFormData({ title: "", category: "", image: "", description: "" });
+      // API CALL
+      if (editingGalleryId) {
+        console.log(`🔄 Updating gallery ${editingGalleryId}...`);
+        await galleryService.update(editingGalleryId, payload);
+      } else {
+        console.log('🆕 Creating new gallery...');
+        await galleryService.create(payload);
+      }
+
+      console.log('✅ Gallery saved successfully');
+      fetchData(); // Refresh data
+      handleGalleryCancel();
       setShowGalleryForm(false);
-      setEditingGalleryId(null);
     } catch (error) {
-      console.error('❌ Error:', error);
-      alert('Gagal menyimpan gallery');
+      console.error('❌ Gallery Error:', error);
+      alert('Gagal menyimpan gallery: ' + error);
+    } finally {
+      setGalleryIsSubmitting(false);
     }
   };
 
   const handleGalleryEdit = (item) => {
     setGalleryFormData({
       title: item.title,
-      category: item.category,
       image: item.image,
       description: item.description
     });
+
+    // 📸 Set preview dari existing image
+    if (item.image) {
+      setGalleryImagePreview(item.image);
+      console.log('📸 Existing gallery image preview:', item.image);
+    }
+
+    // Reset file selection (user harus upload file baru jika ingin ganti)
+    setGalleryImageFile(null);
+
     setEditingGalleryId(item.id);
     setShowGalleryForm(true);
   };
 
-  const handleGalleryDelete = async (id) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus gallery ini?')) {
-      try {
-        await galleryService.delete(id);
-        console.log('✅ Gallery deleted successfully');
-        fetchData(); // Refresh data
-      } catch (error) {
-        console.error('❌ Error:', error);
-        alert('Gagal menghapus gallery');
-      }
+  const handleGalleryDelete = (id) => {
+    const item = galleryList.find(g => g.id === id);
+    setDeleteModal({
+      isOpen: true,
+      type: 'gallery',
+      id,
+      name: item?.title || 'Foto Gallery',
+      isDeleting: false
+    });
+  };
+
+  const confirmGalleryDelete = async () => {
+    try {
+      setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+      await galleryService.delete(deleteModal.id);
+      setDeleteModal({ isOpen: false, type: null, id: null, name: null, isDeleting: false });
+      fetchData();
+    } catch (err) {
+      alert("Gagal menghapus: " + err);
+      setDeleteModal(prev => ({ ...prev, isDeleting: false }));
     }
   };
 
   const handleGalleryInputChange = (e) => {
-    const { name, value } = e.target;
-    setGalleryFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    const { name, type, value, files } = e.target;
+
+    // Handle file input untuk image
+    if (type === 'file' && files && files[0]) {
+      const file = files[0];
+      console.log('📸 Gallery file selected:', file.name, file.type, file.size);
+
+      // Set file object
+      setGalleryImageFile(file);
+
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setGalleryImagePreview(previewUrl);
+
+      // Log untuk debugging
+      console.log('✅ Gallery image preview ready:', previewUrl);
+    } else {
+      // Handle text inputs
+      setGalleryFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleGalleryCancel = () => {
-    setGalleryFormData({ title: "", category: "", image: "", description: "" });
+    setGalleryFormData({ title: "", image: "", description: "" });
     setShowGalleryForm(false);
     setEditingGalleryId(null);
+    setGalleryImageFile(null);
+    setGalleryImagePreview("");
   };
 
   const handleTestSubmit = async (e) => {
@@ -587,16 +792,68 @@ export default function Admin() {
     setTestFormData({ name: "", title: "", image: "", package: "", rating: 5, text: "" });
   };
 
-  const handleTestDelete = async (id) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus testimoni ini?")) {
-      try {
-        await testimonialsService.delete(id);
-        setTestimonialList(prev => prev.filter(t => t.id !== id));
-        console.log('✅ Testimoni berhasil dihapus');
-      } catch (error) {
-        console.error('❌ Error:', error);
-        alert('Gagal menghapus testimoni: ' + error);
-      }
+  const handleTestDelete = (id) => {
+    const test = testimonialList.find(t => t.id === id);
+    setDeleteModal({
+      isOpen: true,
+      type: 'testimonial',
+      id,
+      name: test?.name || 'Unknown Testimonial',
+      isDeleting: false
+    });
+  };
+
+  const confirmTestimonialDelete = async () => {
+    try {
+      setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+      await testimonialsService.delete(deleteModal.id);
+      setDeleteModal({ isOpen: false, type: null, id: null, name: null, isDeleting: false });
+      setTestimonialList(prev => prev.filter(t => t.id !== deleteModal.id));
+      console.log('✅ Testimoni berhasil dihapus');
+    } catch (error) {
+      console.error('❌ Error:', error);
+      alert('Gagal menghapus testimoni: ' + error);
+      setDeleteModal(prev => ({ ...prev, isDeleting: false }));
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  // 🎯 DELETE MODAL HELPERS - Get confirm handler dan messages
+  // ═══════════════════════════════════════════════════════════════
+  const getConfirmHandler = () => {
+    switch (deleteModal.type) {
+      case 'package': return confirmPackageDelete;
+      case 'category': return confirmCategoryDelete;
+      case 'gallery': return confirmGalleryDelete;
+      case 'testimonial': return confirmTestimonialDelete;
+      default: return () => { };
+    }
+  };
+
+  const getModalMessages = () => {
+    switch (deleteModal.type) {
+      case 'package':
+        return {
+          title: 'Hapus Paket?',
+          description: 'Paket wisata ini akan dihapus permanent dari sistem.'
+        };
+      case 'category':
+        return {
+          title: 'Hapus Kategori?',
+          description: 'Kategori ini akan dihapus. Pastikan tidak ada paket terkait.'
+        };
+      case 'gallery':
+        return {
+          title: 'Hapus Foto?',
+          description: 'Foto ini akan dihapus dari gallery permanent.'
+        };
+      case 'testimonial':
+        return {
+          title: 'Hapus Testimoni?',
+          description: 'Testimoni ini akan dihapus dari sistem.'
+        };
+      default:
+        return { title: 'Confirm', description: '' };
     }
   };
 
@@ -655,6 +912,9 @@ export default function Admin() {
                 setShowForm={setShowForm}
                 editingId={editingId}
                 formData={formData}
+                imageFile={imageFile}
+                imagePreview={imagePreview}
+                isSubmitting={isSubmitting}
                 handleInputChange={handleInputChange}
                 handleSubmit={handleSubmit}
                 handleEdit={handleEdit}
@@ -699,7 +959,7 @@ export default function Admin() {
             )}
 
             {/* Coming Soon Tabs */}
-            {currentTab === "gallery" && (
+                        {currentTab === "gallery" && (
               <GalleryTab
                 galleryList={galleryList}
                 filteredGallery={filteredGallery}
@@ -709,6 +969,9 @@ export default function Admin() {
                 setShowForm={setShowGalleryForm}
                 editingId={editingGalleryId}
                 formData={galleryFormData}
+                imageFile={galleryImageFile}
+                imagePreview={galleryImagePreview}
+                isSubmitting={galleryIsSubmitting}
                 handleInputChange={handleGalleryInputChange}
                 handleSubmit={handleGallerySubmit}
                 handleEdit={handleGalleryEdit}
@@ -742,6 +1005,17 @@ export default function Admin() {
           </AnimatePresence>
         </div>
       </main>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, type: null, id: null, name: null, isDeleting: false })}
+        onConfirm={getConfirmHandler()}
+        title={getModalMessages().title}
+        description={getModalMessages().description}
+        itemName={deleteModal.name}
+        isLoading={deleteModal.isDeleting}
+      />
     </div>
   );
 }

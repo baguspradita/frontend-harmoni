@@ -6,11 +6,34 @@ import { useState } from "react";
 export default function PackageCard({ package: pkg, index }) {
   const [showAllHighlights, setShowAllHighlights] = useState(false);
   const [showIncluded, setShowIncluded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   // Mock rating data - bisa di-update dari backend
   const rating = 4.8;
   const reviews = 128;
   const maxHighlights = 2;
+
+  // Debug: Log package data pertama kali
+  if (index === 0) {
+    console.log('📦 PackageCard #1 received:', {
+      title: pkg.title || pkg.name,
+      image: pkg.image,
+      imageExists: !!pkg.image,
+      imageType: typeof pkg.image,
+      allFields: Object.keys(pkg)
+    });
+  }
+
+  // Placeholder image jika tidak ada gambar
+  const placeholderImage = 'https://via.placeholder.com/500x400/4F46E5/FFFFFF?text=No+Image';
+  const imageUrl = pkg.image && pkg.image.trim() ? pkg.image : placeholderImage;
+
+  // Handle image load error
+  const handleImageError = (e) => {
+    console.warn(`⚠️ Image gagal load dari URL: ${pkg.image}`);
+    setImageError(true);
+    e.target.src = placeholderImage;
+  };
 
   // Gabungkan highlights dari field lama (highlights) atau field baru (highlight_utama)
   // highlight_utama di backend berupa string yang dipisahkan koma
@@ -29,18 +52,22 @@ export default function PackageCard({ package: pkg, index }) {
       {/* Image Container with Gradient Overlay */}
       <div className="relative h-64 overflow-hidden bg-gray-200">
         <img
-          src={pkg.image}
+          src={imageUrl}
           alt={pkg.title || pkg.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           loading="lazy"
+          onError={handleImageError}
         />
         
         {/* Gradient Overlay untuk kontras lebih baik */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        
-
-        
+        {/* Status Badge - Tampil jika image gagal load */}
+        {imageError && (
+          <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-semibold">
+            ⚠️ Image Failed
+          </div>
+        )}
       </div>
 
       {/* Content */}

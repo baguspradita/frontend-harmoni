@@ -188,14 +188,32 @@ export const packageService = {
   // ─────────────────────────────────────────────────────────────
   create: async (data) => {
     try {
-      // 1. POST request ke /packages dengan data baru
-      //    Backend akan create di database
-      const response = await api.post('/packages', data);
+      console.log('📤 Creating package with data:', data);
       
-      // 2. Return response dari backend
+      // Detect FormData (image upload) vs regular JSON
+      const isFormData = data instanceof FormData;
+      const config = isFormData 
+        ? { timeout: 120000 }  // 2 menit untuk upload Cloudinary
+        : { timeout: 10000 };  // Default 10 detik untuk JSON
+      
+      console.log(`📤 Sending request (timeout: ${config.timeout}ms, FormData: ${isFormData})`);
+      
+      // POST dengan config timeout
+      const response = await api.post('/packages', data, config);
+      
+      console.log('✅ Package created successfully:', response.data);
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      console.error('❌ Create package error:', error);
+      console.error('   Response:', error.response?.data);
+      console.error('   Status:', error.response?.status);
+      console.error('   Message:', error.message);
+      
+      const errorMsg = error.response?.data?.message || 
+                      error.response?.data?.error || 
+                      error.message || 
+                      'Unknown error occurred';
+      throw new Error(errorMsg);
     }
   },
 
@@ -204,14 +222,32 @@ export const packageService = {
   // ─────────────────────────────────────────────────────────────
   update: async (id, data) => {
     try {
-      // 1. PUT request ke /packages/{id} dengan data update
-      //    Backend akan update di database
-      const response = await api.put(`/packages/${id}`, data);
+      console.log(`📤 Updating package ${id} with data:`, data);
       
-      // 2. Return response dari backend
+      // Detect FormData (image upload) vs regular JSON
+      const isFormData = data instanceof FormData;
+      const config = isFormData 
+        ? { timeout: 120000 }  // 2 menit untuk upload Cloudinary
+        : { timeout: 10000 };  // Default 10 detik untuk JSON
+      
+      console.log(`📤 Sending request (timeout: ${config.timeout}ms, FormData: ${isFormData})`);
+      
+      // PUT dengan config timeout
+      const response = await api.put(`/packages/${id}`, data, config);
+      
+      console.log('✅ Package updated successfully:', response.data);
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      console.error(`❌ Update package ${id} error:`, error);
+      console.error('   Response:', error.response?.data);
+      console.error('   Status:', error.response?.status);
+      console.error('   Message:', error.message);
+      
+      const errorMsg = error.response?.data?.message || 
+                      error.response?.data?.error || 
+                      error.message || 
+                      'Unknown error occurred';
+      throw new Error(errorMsg);
     }
   },
 

@@ -22,6 +22,9 @@ export default function PackagesTab({
   setShowForm,
   editingId,
   formData,
+  imageFile,
+  imagePreview,
+  isSubmitting,
   handleInputChange,
   handleSubmit,
   handleEdit,
@@ -119,7 +122,7 @@ export default function PackagesTab({
                         Select Region
                       </option>
                       {categoryList.map((cat) => (
-                        <option key={cat.id} value={cat.name}>
+                        <option key={cat.id} value={cat.id}>
                           {cat.name}
                         </option>
                       ))}
@@ -157,17 +160,34 @@ export default function PackagesTab({
               <div className="space-y-4">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2 ml-1">
-                    Media Source URL
+                    Package Image (Upload)
                   </label>
+                  
+                  {/* Image Preview */}
+                  {imagePreview && (
+                    <div className="mb-3 relative">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-40 object-cover rounded-lg border border-slate-300"
+                      />
+                      <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-[9px] font-bold">
+                        Preview
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* File Input */}
                   <input
-                    type="url"
+                    type="file"
                     name="image"
-                    value={formData.image}
                     onChange={handleInputChange}
-                    required
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none text-sm font-medium text-slate-900 transition-all shadow-sm"
+                    accept="image/*"
+                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none text-sm font-medium text-slate-900 transition-all shadow-sm cursor-pointer file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
                   />
+                  <p className="text-[9px] text-slate-400 mt-1">
+                    {imagePreview ? "Click to change image" : "Select an image file"}
+                  </p>
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2 ml-1">
@@ -199,14 +219,20 @@ export default function PackagesTab({
                 <div className="flex gap-3 pt-2">
                   <button
                     type="submit"
-                    className="flex-grow py-2.5 bg-indigo-600 text-white font-bold rounded-xl text-xs"
+                    disabled={isSubmitting}
+                    className={`flex-grow py-2.5 font-bold rounded-xl text-xs transition-all ${
+                      isSubmitting 
+                        ? "bg-slate-300 text-slate-500 cursor-not-allowed" 
+                        : "bg-indigo-600 text-white hover:bg-indigo-700"
+                    }`}
                   >
-                    {editingId ? "Update" : "Publish"}
+                    {isSubmitting ? "📤 Uploading..." : editingId ? "Update" : "Publish"}
                   </button>
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="px-6 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs"
+                    disabled={isSubmitting}
+                    className="px-6 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Cancel
                   </button>

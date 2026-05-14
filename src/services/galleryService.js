@@ -49,7 +49,7 @@ export const galleryService = {
 
   create: async (data) => {
     try {
-      const response = await api.post('/api/gallery', data);
+      const response = await api.post('/gallery', data);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -58,7 +58,7 @@ export const galleryService = {
 
   update: async (id, data) => {
     try {
-      const response = await api.put(`/api/gallery/${id}`, data);
+      const response = await api.put(`/gallery/${id}`, data);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -67,7 +67,7 @@ export const galleryService = {
 
   delete: async (id) => {
     try {
-      const response = await api.delete(`/api/gallery/${id}`);
+      const response = await api.delete(`/gallery/${id}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
