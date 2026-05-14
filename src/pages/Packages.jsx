@@ -50,17 +50,11 @@ export default function Packages() {
         animate={{ opacity: 1 }}
         style={{
           backgroundImage: "url('/logo.jpeg')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          minHeight: '400px',
+          backgroundColor: '#005bb7', // Updated color to match the image more closely
         }}
-        className="py-8xl relative"
+        className="relative min-h-[200px] sm:min-h-[400px] md:min-h-[500px] lg:min-h-[600px] bg-[length:100%_auto] sm:bg-cover bg-center pt-24 sm:pt-32"
       >
-        {/* 🌊 WAVE #1 - Dalam Banner, di Bottom 🌊 */}
-        <div className="absolute bottom-0 left-0 w-full">
-          <WaveDivider fill="white" />
-        </div>
       </motion.section>
 
       {/* ========== TEXT SECTION ========== */}

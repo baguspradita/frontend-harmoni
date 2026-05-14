@@ -16,47 +16,69 @@ export default function HeroSection() {
     };
 
     const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
+        hidden: { opacity: 0, y: 30 },
         visible: {
             opacity: 1,
             y: 0,
-            transition: { duration: 0.8 },
+            transition: { 
+                type: "spring",
+                damping: 25,
+                stiffness: 100,
+                duration: 0.8 
+            },
         },
     };
 
     return (
-        <section className="relative bg-gradient-to-b from-blue-600 to-blue-700 min-h-screen flex items-center justify-center overflow-hidden">
+        <section className="relative bg-slate-900 min-h-screen flex items-center justify-center overflow-hidden">
             {/* Background Image with Overlay */}
             <div className="absolute inset-0 z-0">
                 <img
                     src={heroBg}
                     alt="Hero Background"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover scale-105"
                 />
-                <div className="absolute inset-0 bg-black/40"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-transparent"></div>
             </div>
 
-            {/* Content - TANPA SVG */}
+            {/* Floating Background Elements */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <motion.div 
+                    animate={{ 
+                        y: [0, -20, 0],
+                        rotate: [0, 5, 0]
+                    }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute top-1/4 -left-20 w-64 h-64 bg-primary/20 rounded-full blur-3xl"
+                />
+                <motion.div 
+                    animate={{ 
+                        y: [0, 30, 0],
+                        rotate: [0, -5, 0]
+                    }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                    className="absolute bottom-1/4 -right-20 w-80 h-80 bg-secondary/10 rounded-full blur-3xl"
+                />
+            </div>
+
+            {/* Content */}
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                className="relative z-10 max-w-4xl mx-auto px-lg text-white text-center"
+                className="relative z-10 max-w-5xl mx-auto px-lg text-white text-center"
             >
                 <motion.h1
                     variants={itemVariants}
-                    className="font-poppins font-bold text-5xl sm:text-6xl md:text-7xl leading-tight mb-xl text-primary"
-                    style={{
-                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-                    }}
+                    className="font-poppins font-extrabold text-5xl sm:text-7xl md:text-8xl leading-tight mb-xl"
                 >
                     Pengalaman Wisata <br />
-                    <span className="text-primary">Tak Terlupakan</span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Tak Terlupakan</span>
                 </motion.h1>
 
                 <motion.p
                     variants={itemVariants}
-                    className="font-inter text-lg text-gray-200 mb-3xl max-w-2xl mx-auto leading-relaxed"
+                    className="font-inter text-lg md:text-xl text-gray-200 mb-3xl max-w-2xl mx-auto leading-relaxed opacity-90"
                 >
                     Nikmati petualangan seru ke destinasi impian Anda dengan paket wisata
                     terpilih, pemandu berpengalaman, dan layanan terbaik.
@@ -68,17 +90,17 @@ export default function HeroSection() {
                 >
                     <Link
                         to="/packages"
-                        className="inline-flex items-center gap-md px-2xl py-lg font-inter font-bold text-base text-secondary bg-white rounded-lg hover:bg-gray-100 transition-all duration-300 hover:shadow-medium"
+                        className="group relative inline-flex items-center gap-md px-2xl py-lg font-inter font-bold text-base text-secondary bg-white rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-xl hover:shadow-primary/20"
                     >
                         Lihat Paket Wisata
-                        <HiArrowRight />
+                        <HiArrowRight className="group-hover:translate-x-1 transition-transform" />
                     </Link>
 
                     <a
                         href="https://wa.me/6288227250909?text=Saya%20ingin%20berkonsultasi%20tentang%20paket%20wisata"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-md px-2xl py-lg font-inter font-bold text-base text-white border-2 border-white rounded-lg hover:bg-secondary/10 transition-all duration-300"
+                        className="inline-flex items-center gap-md px-2xl py-lg font-inter font-bold text-base text-white border-2 border-white/30 backdrop-blur-sm rounded-xl hover:bg-white/10 transition-all duration-300"
                     >
                         Konsultasi Gratis
                         <HiArrowRight />
@@ -86,39 +108,9 @@ export default function HeroSection() {
                 </motion.div>
             </motion.div>
 
-            {/* Scroll Indicator */}
-            <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="absolute bottom-lg left-1/2 transform -translate-x-1/2 z-10"
-            >
-                <svg
-                    className="w-6 h-6 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                    />
-                </svg>
-            </motion.div>
+            
 
-            {/* ⭐ WAVE SVG - PINDAH KE SINI (Posisi Section Level) */}
-            <svg
-                className="absolute bottom-0 left-0 w-full"
-                viewBox="0 0 1200 120"
-                preserveAspectRatio="none"
-                style={{ display: 'block', lineHeight: 0 }}
-            >
-                <path
-                    d="M0,50 Q300,10 600,50 T1200,50 L1200,150 L0,150 Z"
-                    fill="white"
-                />
-            </svg>
+            
         </section>
     );
 }

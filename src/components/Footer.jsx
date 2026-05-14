@@ -94,15 +94,15 @@ export default function Footer() {
             <ul className="space-y-md font-inter text-sm">
               <li className="flex items-start gap-md">
                 <HiPhone className="mt-1 flex-shrink-0" />
-                <span>+62 812 3456 789</span>
+                <span>0882-2725-0909</span>
               </li>
               <li className="flex items-start gap-md">
                 <HiOutlineEnvelope className="mt-1 flex-shrink-0" />
-                <span>info@harmontravel.com</span>
+                <span>harmonitourid@gmail.com</span>
               </li>
               <li className="flex items-start gap-md">
                 <HiOutlineMapPin className="mt-1 flex-shrink-0" />
-                <span>Jakarta, Indonesia</span>
+                <span>Yogyakarta, Indonesia</span>
               </li>
             </ul>
           </motion.div>
@@ -120,7 +120,7 @@ export default function Footer() {
                 <FaFacebook />
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/harmonitour.id?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank"
                 className="w-10 h-10 rounded-lg bg-secondary hover:bg-opacity-80 flex items-center justify-center transition-all duration-300 hover:scale-110"
               >
                 <FaInstagram />
@@ -146,14 +146,6 @@ export default function Footer() {
           <p>
             &copy; {currentYear} Harmoni Travel. Semua hak dilindungi.
           </p>
-          <div className="flex gap-xl">
-            <a href="#" className="hover:text-secondary transition-colors">
-              Kebijakan Privasi
-            </a>
-            <a href="#" className="hover:text-secondary transition-colors">
-              Syarat & Ketentuan
-            </a>
-          </div>
         </motion.div>
       </div>
     </motion.footer>

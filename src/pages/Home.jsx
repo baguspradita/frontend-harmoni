@@ -142,19 +142,33 @@ export default function Home() {
               return (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="bg-white rounded-lg p-xl text-center hover:shadow-medium transition-all duration-300"
+                  transition={{ 
+                    type: "spring",
+                    damping: 20,
+                    stiffness: 100,
+                    delay: index * 0.1 
+                  }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  whileHover={{ 
+                    y: -10,
+                    transition: { duration: 0.2 }
+                  }}
+                  className="bg-white rounded-2xl p-xl text-center shadow-soft hover:shadow-xl transition-shadow duration-300 border border-gray-50"
                 >
-                  <div className="mx-auto mb-lg">
-                    <Icon className="w-12 h-12 text-secondary mx-auto" />
-                  </div>
-                  <h3 className="font-poppins font-bold text-dark mb-md">
+                  <motion.div 
+                    initial={{ scale: 0.8 }}
+                    whileInView={{ scale: 1 }}
+                    transition={{ delay: index * 0.1 + 0.2 }}
+                    className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-lg text-primary"
+                  >
+                    <Icon className="w-8 h-8" />
+                  </motion.div>
+                  <h3 className="font-poppins font-bold text-dark mb-md text-lg">
                     {feature.title}
                   </h3>
-                  <p className="font-inter text-gray-600 text-sm">
+                  <p className="font-inter text-gray-600 text-sm leading-relaxed">
                     {feature.description}
                   </p>
                 </motion.div>
