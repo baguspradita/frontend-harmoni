@@ -99,31 +99,39 @@ export default function GalleryTab({
                 />
               </div>
 
-              
-
+              {/* Choose File */}
               <div className="md:col-span-2">
                 <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2 ml-1">
-                  📸 Select Image
+                  📸 Media Image (Upload)
                 </label>
+
+                {/* Image Preview */}
+                {imagePreview && (
+                  <div className="mb-3 relative rounded-xl overflow-hidden border border-slate-300">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-[9px] font-bold backdrop-blur-sm">
+                      Preview
+                    </div>
+                  </div>
+                )}
+
+                {/* File Input */}
                 <input
                   type="file"
                   name="image"
-                  accept="image/*"
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-sm"
+                  accept="image/*"
+                  required={!editingId}
+                  className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none text-sm font-medium text-slate-900 transition-all shadow-sm cursor-pointer file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
                 />
+                <p className="text-[9px] text-slate-400 mt-1 ml-1">
+                  {imagePreview ? "Click to change image" : "Select an image file (JPG, PNG, WebP)"}
+                </p>
               </div>
-
-              {/* Image Preview */}
-              {imagePreview && (
-                <div className="md:col-span-2 relative rounded-xl overflow-hidden border-2 border-indigo-300 bg-indigo-50">
-                  <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover" />
-                  <div className="absolute top-2 right-2 px-3 py-1 bg-indigo-600 text-white text-xs font-bold rounded-lg">
-                    Preview
-                  </div>
-                </div>
-              )}
 
               <div className="md:col-span-2">
                 <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2 ml-1">

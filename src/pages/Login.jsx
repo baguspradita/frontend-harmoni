@@ -305,40 +305,8 @@ export default function Login() {
                 </motion.button>
               </form>
 
-              {/* Divider */}
-              <div className="my-6 relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
-                </div>
-                <div className="relative flex justify-center">
-                  <span className="px-3 bg-white text-xs text-gray-500 font-inter">Demo Credentials</span>
-                </div>
-              </div>
 
-              {/* Demo Credentials */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9 }}
-                className="bg-primary/5 rounded-xl p-4 border border-primary/10"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-1 h-1 rounded-full bg-primary mt-2 flex-shrink-0"></div>
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-700 font-inter">
-                      <span className="font-semibold text-gray-900">Email:</span> admin@harmoni.com
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 mt-2">
-                  <div className="w-1 h-1 rounded-full bg-primary mt-2 flex-shrink-0"></div>
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-700 font-inter">
-                      <span className="font-semibold text-gray-900">Password:</span> password
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
+              
             </div>
 
             {/* Footer */}

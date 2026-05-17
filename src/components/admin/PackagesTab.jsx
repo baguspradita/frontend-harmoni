@@ -152,6 +152,12 @@ export default function PackagesTab({
                     name="price"
                     value={formData.price}
                     onChange={handleInputChange}
+                    onKeyPress={(e) => {
+                      // Hanya izinkan angka (0-9)
+                      if (!/[0-9]/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                     required
                     className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none text-sm font-medium text-slate-900 transition-all shadow-sm"
                   />
@@ -162,7 +168,7 @@ export default function PackagesTab({
                   <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2 ml-1">
                     Package Image (Upload)
                   </label>
-                  
+
                   {/* Image Preview */}
                   {imagePreview && (
                     <div className="mb-3 relative">
@@ -176,7 +182,7 @@ export default function PackagesTab({
                       </div>
                     </div>
                   )}
-                  
+
                   {/* File Input */}
                   <input
                     type="file"
@@ -220,13 +226,16 @@ export default function PackagesTab({
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`flex-grow py-2.5 font-bold rounded-xl text-xs transition-all ${
-                      isSubmitting 
-                        ? "bg-slate-300 text-slate-500 cursor-not-allowed" 
-                        : "bg-indigo-600 text-white hover:bg-indigo-700"
-                    }`}
+                    className="flex-grow py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition-all text-[11px] font-bold flex items-center justify-center gap-2"
                   >
-                    {isSubmitting ? "📤 Uploading..." : editingId ? "Update" : "Publish"}
+                    {isSubmitting ? (
+                      <>
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>{editingId ? "Update Information" : "Publish Package"}</>
+                    )}
                   </button>
                   <button
                     type="button"
